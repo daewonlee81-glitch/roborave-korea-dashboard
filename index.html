@@ -986,13 +986,70 @@ function renderMatchItem(m, teams, section, catKey, ko) {
 function renderKOSection(cat, catKey, teams, section) {
   const byStage = {};
   (cat.knockoutMatches||[]).forEach(m => { if(!byStage[m.stage])byStage[m.stage]=[]; byStage[m.stage].push(m); });
-  const order=['r16','qf','sf','final'], names={r16:'⚡ 16강',qf:'🔥 8강',sf:'🏅 4강',final:'🏆 결승'};
+  const order=['r16','qf','sf','3rd','final'], names={r16:'⚡ 16강',qf:'🔥 8강',sf:'🏅 4강','3rd':'🥉 3위 결정전',final:'🏆 결승'};
   let html=`<div class="card"><div class="card-hdr"><div class="card-title">🏆 토너먼트</div></div><div class="card-body">`;
   order.forEach(stage => {
     if (!byStage[stage]) return;
     html+=`<div class="bracket-section"><div class="bracket-stage-title">${names[stage]}</div><div class="match-list">${byStage[stage].map(m=>renderMatchItem(m,teams,section,catKey,true)).join('')}</div></div>`;
   });
   return html+`</div></div>`;
+}
+
+/* ── KNOCKOUT WINNER PROPAGATION ─────────────────── */
+function propagateKOWinners(section, catKey) {
+  let ko, pfx;
+  if (section === 'sumo') { ko = S.sumo[catKey].knockoutMatches; pfx = catKey; }
+  else                    { ko = S.othello.knockoutMatches;       pfx = 'OT';   }
+
+  const find = id => ko.find(m => m.id === id);
+  const winner = m => {
+    if (!m || m.status !== 'done' || !m.result || m.result === 'D') return null;
+    return m.result === 'A' ? m.teamA : m.teamB;
+  };
+  const loser = m => {
+    if (!m || m.status !== 'done' || !m.result || m.result === 'D') return null;
+    return m.result === 'A' ? m.teamB : m.teamA;
+  };
+
+  // 16강 → 8강
+  for (let i = 0; i < 4; i++) {
+    const qf = find(`${pfx}_qf_${i}`); if (!qf) continue;
+    const w0 = winner(find(`${pfx}_r16_${i*2}`));
+    const w1 = winner(find(`${pfx}_r16_${i*2+1}`));
+    if (w0 !== null) qf.teamA = w0;
+    if (w1 !== null) qf.teamB = w1;
+    if (w0 !== null || w1 !== null) qf.status = 'pending';
+  }
+
+  // 8강 → 4강
+  for (let i = 0; i < 2; i++) {
+    const sf = find(`${pfx}_sf_${i}`); if (!sf) continue;
+    const w0 = winner(find(`${pfx}_qf_${i*2}`));
+    const w1 = winner(find(`${pfx}_qf_${i*2+1}`));
+    if (w0 !== null) sf.teamA = w0;
+    if (w1 !== null) sf.teamB = w1;
+    if (w0 !== null || w1 !== null) sf.status = 'pending';
+  }
+
+  // 4강 패자 → 3위 결정전
+  const thirdM = find(`${pfx}_3rd_0`);
+  if (thirdM) {
+    const l0 = loser(find(`${pfx}_sf_0`));
+    const l1 = loser(find(`${pfx}_sf_1`));
+    if (l0 !== null) thirdM.teamA = l0;
+    if (l1 !== null) thirdM.teamB = l1;
+    if (l0 !== null || l1 !== null) thirdM.status = 'pending';
+  }
+
+  // 4강 승자 → 결승
+  const finalM = find(`${pfx}_final_0`);
+  if (finalM) {
+    const w0 = winner(find(`${pfx}_sf_0`));
+    const w1 = winner(find(`${pfx}_sf_1`));
+    if (w0 !== null) finalM.teamA = w0;
+    if (w1 !== null) finalM.teamB = w1;
+    if (w0 !== null || w1 !== null) finalM.status = 'pending';
+  }
 }
 
 /* ── KNOCKOUT GENERATION ─────────────────────────── */
@@ -1013,6 +1070,7 @@ function genSumoKO(catKey) {
     ms.push({id:`${pfx}_sf_0`,stage:'sf',teamA:adv[0]||null,teamB:adv[3]||null,result:null,arena:null,status:'pending'});
     ms.push({id:`${pfx}_sf_1`,stage:'sf',teamA:adv[1]||null,teamB:adv[2]||null,result:null,arena:null,status:'pending'});
   }
+  ms.push({id:`${pfx}_3rd_0`,stage:'3rd',teamA:null,teamB:null,result:null,arena:null,status:'pending'});
   ms.push({id:`${pfx}_final_0`,stage:'final',teamA:null,teamB:null,result:null,arena:null,status:'pending'});
   cat.knockoutMatches=ms; save(); renderSumo();
 }
@@ -1026,6 +1084,7 @@ function genOthelloKO() {
   cat.knockoutMatches=[
     {id:'OT_sf_0',stage:'sf',teamA:adv[0]||null,teamB:adv[3]||null,result:null,arena:'1',status:'pending'},
     {id:'OT_sf_1',stage:'sf',teamA:adv[1]||null,teamB:adv[2]||null,result:null,arena:'1',status:'pending'},
+    {id:'OT_3rd_0',stage:'3rd',teamA:null,teamB:null,result:null,arena:'1',status:'pending'},
     {id:'OT_final_0',stage:'final',teamA:null,teamB:null,result:null,arena:'1',status:'pending'},
   ];
   save(); renderOthello();
@@ -1232,6 +1291,8 @@ function saveMatch() {
   else{const cat=S.othello;match=ko?cat.knockoutMatches.find(m=>m.id===matchId):cat.matches.find(m=>m.id===matchId);}
   if (!match) return;
   match.result=curResult; match.arena=document.getElementById('mArena').value||null; match.status=document.getElementById('mStatus').value;
+  // 토너먼트 경기라면 승자를 다음 라운드로 자동 진출
+  if (editMatch.ko) propagateKOWinners(editMatch.section, editMatch.catKey);
   save(); closeModal('matchOverlay'); renderCurrent();
 }
 
