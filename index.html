@@ -721,8 +721,23 @@ function mkOthello(count) {
 /* ── PERSISTENCE ──────────────────────────────────── */
 function save() { try { localStorage.setItem('rrk_state', JSON.stringify(S)); } catch(e) {} }
 function load() {
-  try { const r = localStorage.getItem('rrk_state'); if (r) { S = JSON.parse(r); return; } } catch(e) {}
+  try { const r = localStorage.getItem('rrk_state'); if (r) { S = JSON.parse(r); migrateState(); return; } } catch(e) {}
   S = mkDefault();
+}
+
+/* 기존 저장 데이터에 3위 결정전 슬롯 자동 추가 (마이그레이션) */
+function migrateState() {
+  const addThird = (ko, pfx, arena) => {
+    if (!ko || !ko.length) return;
+    if (ko.some(m => m.stage === '3rd')) return;       // 이미 있음
+    if (!ko.some(m => m.stage === 'sf')) return;       // 4강 없으면 불필요
+    const idx = ko.findIndex(m => m.stage === 'final');
+    const slot = {id:`${pfx}_3rd_0`, stage:'3rd', teamA:null, teamB:null, result:null, arena, status:'pending'};
+    if (idx >= 0) ko.splice(idx, 0, slot); else ko.push(slot);
+  };
+  Object.entries(S.sumo).forEach(([k, cat]) => addThird(cat.knockoutMatches, k, null));
+  addThird(S.othello.knockoutMatches, 'OT', '1');
+  save(); // 마이그레이션 결과 즉시 저장
 }
 
 /* ── CALCULATIONS ─────────────────────────────────── */
@@ -1002,12 +1017,14 @@ function propagateKOWinners(section, catKey) {
   else                    { ko = S.othello.knockoutMatches;       pfx = 'OT';   }
 
   const find = id => ko.find(m => m.id === id);
+  // 결과가 확정되면(status=done OR result 입력) 다음 라운드로 전파
+  const resolved = m => m && m.result && m.result !== 'D';
   const winner = m => {
-    if (!m || m.status !== 'done' || !m.result || m.result === 'D') return null;
+    if (!resolved(m)) return null;
     return m.result === 'A' ? m.teamA : m.teamB;
   };
   const loser = m => {
-    if (!m || m.status !== 'done' || !m.result || m.result === 'D') return null;
+    if (!resolved(m)) return null;
     return m.result === 'A' ? m.teamB : m.teamA;
   };
 
@@ -1275,7 +1292,7 @@ function openMatch(section, catKey, matchId, ko=false) {
   document.getElementById('matchOverlay').classList.remove('hidden');
 }
 
-function selectResult(r){curResult=r;updateResButtons();}
+function selectResult(r){curResult=r;updateResButtons();if(r)document.getElementById('mStatus').value='done';}
 function updateResButtons(){
   document.getElementById('rBtnA').className='res-btn'+(curResult==='A'?' sel-a':'');
   document.getElementById('rBtnD').className='res-btn'+(curResult==='D'?' sel-d':'');
