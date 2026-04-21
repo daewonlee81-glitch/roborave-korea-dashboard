@@ -281,6 +281,23 @@ tbody tr:hover{background:var(--g100)}
 .match-preview{background:var(--g100);border-radius:8px;padding:.65rem;text-align:center;font-size:.9rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;justify-content:center;gap:.45rem;flex-wrap:wrap}
 .match-preview .versus{color:var(--g400);font-size:.78rem;font-weight:400}
 
+/* ── FINAL PODIUM ─────────────────────────────────────── */
+.podium-wrap{margin-top:1.4rem;padding-top:1.2rem;border-top:2px dashed var(--g200)}
+.podium-title{font-size:.95rem;font-weight:900;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.podium-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem}
+.podium-card{border-radius:var(--rl);padding:1rem .75rem;text-align:center;box-shadow:var(--sh1)}
+.podium-card.p1{border:2.5px solid #f4c430;background:linear-gradient(135deg,#fffde7,#fff8c0)}
+.podium-card.p2{border:2.5px solid #b0bec5;background:linear-gradient(135deg,#f5f5f5,#eceff1)}
+.podium-card.p3{border:2.5px solid #a5805a;background:linear-gradient(135deg,#fff3e0,#ffe0b2)}
+.podium-card.p4{border:2px solid var(--g300);background:#fff}
+.podium-medal{font-size:2rem;line-height:1;margin-bottom:.35rem}
+.podium-rank{font-size:.65rem;font-weight:800;color:var(--g600);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem}
+.podium-name{font-size:.9rem;font-weight:900;color:var(--text);word-break:keep-all;line-height:1.35}
+.podium-card.p1 .podium-name{color:#7a5c00}
+.podium-card.p2 .podium-name{color:#455a64}
+.podium-card.p3 .podium-name{color:#6d4c41}
+@media(max-width:640px){.podium-grid{grid-template-columns:repeat(2,1fr);gap:.55rem}}
+
 /* ── MISC ────────────────────────────────────────────── */
 .editable{cursor:pointer;border-bottom:1px dashed var(--g400)}
 .editable:hover{color:var(--navy)}
@@ -1022,6 +1039,33 @@ function renderKOSection(cat, catKey, teams, section) {
     if (!byStage[stage]) return;
     html+=`<div class="bracket-section"><div class="bracket-stage-title">${names[stage]}</div><div class="match-list">${byStage[stage].map(m=>renderMatchItem(m,teams,section,catKey,true)).join('')}</div></div>`;
   });
+
+  // 최종 순위표 — 결승 + 3위 결정전 모두 결과 있을 때 표시
+  const finalM  = (byStage['final']||[])[0];
+  const thirdM  = (byStage['3rd']||[])[0];
+  const resolved = m => m && m.result && m.result !== 'D';
+  if (resolved(finalM) && resolved(thirdM)) {
+    const getName = id => teams.find(t=>t.id===id)?.name || id || 'TBD';
+    const w  = m => getName(m.result==='A' ? m.teamA : m.teamB);
+    const lo = m => getName(m.result==='A' ? m.teamB : m.teamA);
+    const p = [
+      {cls:'p1', medal:'🥇', rank:'1위 우승', name: w(finalM)},
+      {cls:'p2', medal:'🥈', rank:'2위 준우승', name: lo(finalM)},
+      {cls:'p3', medal:'🥉', rank:'3위',       name: w(thirdM)},
+      {cls:'p4', medal:'4️⃣', rank:'4위',       name: lo(thirdM)},
+    ];
+    html += `<div class="podium-wrap">
+      <div class="podium-title">🏅 최종 순위</div>
+      <div class="podium-grid">
+        ${p.map(r=>`<div class="podium-card ${r.cls}">
+          <div class="podium-medal">${r.medal}</div>
+          <div class="podium-rank">${r.rank}</div>
+          <div class="podium-name">${r.name}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
   return html+`</div></div>`;
 }
 
