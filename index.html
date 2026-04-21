@@ -2,308 +2,398 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RoboRave Korea Open – Competition Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a3a6b">
+<title>RoboRave Korea Open</title>
 <style>
-/* ── RESET & VARIABLES ────────────────────────────────── */
+/* ── VARIABLES ───────────────────────────────────────── */
 :root {
-  --navy:   #1a3a6b;
-  --navy2:  #2456a4;
-  --red:    #e63946;
-  --gold:   #f4c430;
-  --green:  #06c87e;
-  --orange: #f4874b;
-  --bg:     #eef2f7;
-  --white:  #ffffff;
-  --g100:   #f8f9fa;
-  --g200:   #e9ecef;
-  --g300:   #dee2e6;
-  --g400:   #ced4da;
-  --g500:   #adb5bd;
-  --g600:   #6c757d;
-  --g800:   #343a40;
-  --text:   #1e293b;
-  --sh1: 0 1px 4px rgba(0,0,0,.10);
-  --sh2: 0 4px 14px rgba(0,0,0,.13);
-  --sh3: 0 8px 28px rgba(0,0,0,.18);
-  --r:  8px;
-  --rl: 14px;
+  --navy:#1a3a6b; --navy2:#2456a4;
+  --red:#e63946; --gold:#f4c430; --green:#06c87e; --orange:#f4874b;
+  --bg:#eef2f7; --g100:#f8f9fa; --g200:#e9ecef; --g300:#dee2e6;
+  --g400:#ced4da; --g500:#adb5bd; --g600:#6c757d; --g800:#343a40;
+  --text:#1e293b;
+  --sh1:0 1px 4px rgba(0,0,0,.10);
+  --sh2:0 4px 14px rgba(0,0,0,.13);
+  --sh3:0 8px 28px rgba(0,0,0,.20);
+  --r:8px; --rl:14px;
+  --bnav:64px;       /* bottom nav height */
+  --safe-b:env(safe-area-inset-bottom,0px);
 }
+
+/* ── RESET ───────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
-button{cursor:pointer;border:none;font-family:inherit;font-size:inherit}
-input,select,textarea{font-family:inherit;font-size:inherit}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;font-size:14px;
+  padding-bottom:calc(var(--bnav) + var(--safe-b))
+}
+button{cursor:pointer;border:none;font-family:inherit;font-size:inherit;-webkit-tap-highlight-color:transparent}
+input,select{font-family:inherit;font-size:inherit}
+img{max-width:100%}
 
 /* ── HEADER ───────────────────────────────────────────── */
 .hdr{
-  background:linear-gradient(135deg,#0f2548 0%,var(--navy2) 100%);
-  color:#fff;padding:.75rem 1.5rem;
+  background:linear-gradient(135deg,#0f2548,var(--navy2));
+  color:#fff;padding:.65rem 1rem .65rem 1.1rem;
   display:flex;align-items:center;justify-content:space-between;
-  box-shadow:var(--sh2);position:sticky;top:0;z-index:200;gap:1rem
+  box-shadow:var(--sh2);position:sticky;top:0;z-index:200;gap:.75rem;
+  padding-top:max(.65rem, env(safe-area-inset-top))
 }
-.hdr-brand{display:flex;align-items:center;gap:.75rem}
-.hdr-logo{font-size:2rem;line-height:1}
-.hdr-txt .title{font-size:1.05rem;font-weight:800;letter-spacing:.01em}
-.hdr-txt .sub{font-size:.72rem;opacity:.75;margin-top:.1rem}
-.hdr-actions{display:flex;align-items:center;gap:.6rem;flex-shrink:0}
-.badge-admin{
-  background:var(--gold);color:#1a2a00;
-  padding:.25rem .7rem;border-radius:20px;
-  font-size:.75rem;font-weight:800;white-space:nowrap
-}
+.hdr-brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.hdr-logo{font-size:1.6rem;line-height:1;flex-shrink:0}
+.hdr-txt{min-width:0}
+.hdr-txt .title{font-size:.95rem;font-weight:800;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-txt .sub{font-size:.68rem;opacity:.7;margin-top:.05rem;white-space:nowrap}
+.hdr-actions{display:flex;align-items:center;gap:.4rem;flex-shrink:0}
+.badge-admin{background:var(--gold);color:#1a2a00;padding:.2rem .55rem;border-radius:20px;font-size:.7rem;font-weight:800;white-space:nowrap}
 .btn-hdr{
   background:rgba(255,255,255,.14);color:#fff;
   border:1px solid rgba(255,255,255,.28);
-  padding:.38rem .9rem;border-radius:6px;
-  font-size:.8rem;font-weight:600;transition:background .2s
+  padding:.35rem .7rem;border-radius:6px;
+  font-size:.76rem;font-weight:600;transition:background .2s;white-space:nowrap
 }
-.btn-hdr:hover{background:rgba(255,255,255,.24)}
+.btn-hdr:hover,.btn-hdr:active{background:rgba(255,255,255,.26)}
 .btn-hdr.danger{background:rgba(220,50,50,.3);border-color:rgba(220,50,50,.5)}
-.btn-hdr.danger:hover{background:rgba(220,50,50,.5)}
 
-/* ── NAV ──────────────────────────────────────────────── */
-.main-nav{
+/* ── TOP NAV (desktop) ───────────────────────────────── */
+.top-nav{
   background:#fff;border-bottom:2px solid var(--g200);
-  display:flex;padding:0 1.25rem;gap:0;overflow-x:auto;
-  box-shadow:var(--sh1)
+  display:flex;padding:0 1rem;overflow-x:auto;
+  box-shadow:var(--sh1);scrollbar-width:none
 }
+.top-nav::-webkit-scrollbar{display:none}
 .nav-btn{
-  padding:.85rem 1.2rem;font-size:.875rem;font-weight:700;
+  padding:.8rem 1.1rem;font-size:.85rem;font-weight:700;
   color:var(--g600);border-bottom:3px solid transparent;
   background:none;white-space:nowrap;transition:all .2s;
-  display:flex;align-items:center;gap:.4rem
+  display:flex;align-items:center;gap:.35rem;flex-shrink:0;
+  min-height:44px
 }
-.nav-btn:hover{color:var(--navy)}
+.nav-btn:hover,.nav-btn:active{color:var(--navy)}
 .nav-btn.active{color:var(--navy);border-bottom-color:var(--navy)}
 
+/* ── BOTTOM NAV (mobile) ─────────────────────────────── */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:300;
+  background:#fff;border-top:1px solid var(--g200);
+  box-shadow:0 -2px 12px rgba(0,0,0,.1);
+  padding-bottom:var(--safe-b)
+}
+.bottom-nav-inner{display:grid;grid-template-columns:repeat(4,1fr)}
+.bnav-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:.55rem .25rem;gap:.15rem;background:none;
+  color:var(--g500);transition:color .15s;min-height:var(--bnav);
+  -webkit-tap-highlight-color:transparent
+}
+.bnav-btn .bnav-ico{font-size:1.3rem;line-height:1}
+.bnav-btn .bnav-lbl{font-size:.62rem;font-weight:700;letter-spacing:.01em}
+.bnav-btn.active{color:var(--navy)}
+.bnav-btn.active .bnav-ico{transform:scale(1.1)}
+
 /* ── MAIN ─────────────────────────────────────────────── */
-.main{padding:1.25rem;max-width:1440px;margin:0 auto}
+.main{padding:1rem;max-width:1440px;margin:0 auto}
 
-/* ── CARDS ────────────────────────────────────────────── */
+/* ── CARDS ───────────────────────────────────────────── */
 .card{background:#fff;border-radius:var(--rl);box-shadow:var(--sh1);overflow:hidden}
-.card-hdr{
-  padding:.85rem 1.15rem;border-bottom:1px solid var(--g200);
-  display:flex;align-items:center;justify-content:space-between;gap:.75rem
-}
-.card-title{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:.4rem}
-.card-body{padding:1.15rem}
+.card-hdr{padding:.8rem 1rem;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.card-title{font-size:.9rem;font-weight:800;display:flex;align-items:center;gap:.35rem}
+.card-body{padding:1rem}
 
-/* ── BUTTONS ──────────────────────────────────────────── */
-.btn{
-  display:inline-flex;align-items:center;gap:.35rem;
-  padding:.45rem .9rem;border-radius:6px;font-size:.82rem;font-weight:700;
-  transition:all .2s;cursor:pointer
-}
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:.3rem;padding:.45rem .9rem;border-radius:6px;font-size:.82rem;font-weight:700;transition:all .15s;cursor:pointer;min-height:38px}
 .btn-primary{background:var(--navy);color:#fff}
-.btn-primary:hover{background:var(--navy2)}
-.btn-success{background:var(--green);color:#fff}
-.btn-success:hover{filter:brightness(.9)}
+.btn-primary:active{background:var(--navy2)}
 .btn-danger{background:var(--red);color:#fff}
-.btn-danger:hover{filter:brightness(.9)}
-.btn-outline{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
-.btn-outline:hover{background:var(--g100)}
 .btn-ghost{background:var(--g100);color:var(--g800);border:1px solid var(--g300)}
-.btn-ghost:hover{background:var(--g200)}
-.btn-sm{padding:.3rem .65rem;font-size:.76rem}
-.btn-xs{padding:.18rem .5rem;font-size:.7rem;border-radius:5px}
+.btn-ghost:active{background:var(--g200)}
+.btn-outline{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.btn-sm{padding:.3rem .6rem;font-size:.75rem;min-height:32px}
+.btn-xs{padding:.18rem .45rem;font-size:.7rem;border-radius:5px;min-height:28px}
+.btn-block{width:100%;justify-content:center}
 
 /* ── TABS ─────────────────────────────────────────────── */
-.tab-bar{display:flex;gap:.5rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.tab-bar{display:flex;gap:.45rem;margin-bottom:1rem;overflow-x:auto;padding-bottom:.1rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tab-bar::-webkit-scrollbar{display:none}
 .tab-btn{
-  padding:.45rem 1rem;border-radius:7px;font-size:.82rem;font-weight:700;
+  padding:.4rem .85rem;border-radius:7px;font-size:.8rem;font-weight:700;
   background:#fff;color:var(--g600);border:1.5px solid var(--g300);
-  transition:all .2s;text-align:center;line-height:1.35
+  transition:all .15s;text-align:center;line-height:1.3;flex-shrink:0;
+  min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center
 }
-.tab-btn:hover{border-color:var(--navy);color:var(--navy)}
+.tab-btn:active{background:var(--g100)}
 .tab-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-.tab-btn small{font-weight:400;opacity:.85}
+.tab-btn small{font-weight:400;opacity:.85;font-size:.7rem}
 
-/* ── TABLES ───────────────────────────────────────────── */
-.tbl-wrap{overflow-x:auto}
+/* ── TABLES ──────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:.84rem}
-thead th{
-  background:var(--g100);padding:.55rem .75rem;text-align:left;
-  font-weight:800;color:var(--g800);border-bottom:2px solid var(--g200);
-  white-space:nowrap
-}
-tbody td{padding:.5rem .75rem;border-bottom:1px solid var(--g200);vertical-align:middle}
+thead th{background:var(--g100);padding:.5rem .65rem;text-align:left;font-weight:800;color:var(--g800);border-bottom:2px solid var(--g200);white-space:nowrap}
+tbody td{padding:.48rem .65rem;border-bottom:1px solid var(--g200);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--g100)}
 .tr-1st{background:#fff9e6!important}
 .tr-2nd{background:#eef4ff!important}
 .tr-3rd{background:#edfff6!important}
 
-/* ── BADGES ───────────────────────────────────────────── */
-.badge{
-  display:inline-flex;align-items:center;gap:.2rem;
-  padding:.18rem .55rem;border-radius:20px;font-size:.7rem;font-weight:800;white-space:nowrap
+/* ── MOBILE TABLE → CARD ─────────────────────────────── */
+/* Standings card layout on narrow screens */
+.standings-mobile{display:none}
+.scard{
+  border:1px solid var(--g200);border-radius:var(--r);
+  padding:.7rem .85rem;margin-bottom:.5rem;background:#fff;
+  display:flex;align-items:center;gap:.75rem
 }
+.scard.sc-1st{border-color:#f4c430;background:#fff9e6}
+.scard.sc-2nd{border-color:#93c5fd;background:#eef4ff}
+.scard-rank{font-size:1.3rem;font-weight:900;width:2rem;text-align:center;flex-shrink:0}
+.scard-info{flex:1;min-width:0}
+.scard-name{font-weight:800;font-size:.9rem;margin-bottom:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scard-stats{display:flex;gap:.6rem;font-size:.75rem;color:var(--g600);flex-wrap:wrap}
+.scard-pts{font-size:1.1rem;font-weight:900;color:var(--navy);flex-shrink:0}
+
+/* LF mobile cards */
+.lf-cards{display:none}
+.lf-card{
+  border:1.5px solid var(--g200);border-radius:var(--r);padding:.75rem 1rem;
+  margin-bottom:.6rem;background:#fff
+}
+.lf-card.lfc-1st{border-color:#f4c430;background:#fff9e6}
+.lf-card.lfc-2nd{border-color:#93c5fd;background:#eef4ff}
+.lf-card.lfc-3rd{border-color:#6ee7b7;background:#edfff6}
+.lf-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.lf-card-name{font-weight:800;font-size:.95rem}
+.lf-card-rank{font-size:1.1rem}
+.lf-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;font-size:.78rem}
+.lf-card-grid dt{color:var(--g500);font-weight:600}
+.lf-card-grid dd{font-weight:700}
+
+/* ── BADGES ──────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:.2rem;padding:.18rem .5rem;border-radius:20px;font-size:.68rem;font-weight:800;white-space:nowrap}
 .badge-done{background:#d1fae5;color:#065f46}
 .badge-ongoing{background:#fef3c7;color:#92400e;animation:pulse 1.5s infinite}
 .badge-pending{background:var(--g200);color:var(--g600)}
-.badge-adv{background:#fef3c7;color:#92400e;font-size:.65rem}
-.badge-champion{background:linear-gradient(135deg,#f4c430,#e8a800);color:#1a2a00}
+.badge-adv{background:#fef3c7;color:#92400e;font-size:.62rem}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 
-/* ── STATS ────────────────────────────────────────────── */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.85rem;margin-bottom:1.25rem}
-.stat-card{
-  background:#fff;border-radius:var(--r);padding:1rem 1.1rem;
-  box-shadow:var(--sh1);border-left:4px solid var(--navy)
-}
+/* ── STATS ───────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+.stat-card{background:#fff;border-radius:var(--r);padding:.85rem 1rem;box-shadow:var(--sh1);border-left:4px solid var(--navy)}
 .stat-card.green{border-left-color:var(--green)}
 .stat-card.orange{border-left-color:var(--orange)}
-.stat-card.red{border-left-color:var(--red)}
-.stat-lbl{font-size:.7rem;font-weight:800;color:var(--g600);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem}
-.stat-val{font-size:2rem;font-weight:900;color:var(--text);line-height:1}
-.stat-sub{font-size:.72rem;color:var(--g500);margin-top:.2rem}
+.stat-card.navy2{border-left-color:var(--navy2)}
+.stat-lbl{font-size:.66rem;font-weight:800;color:var(--g600);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.15rem}
+.stat-val{font-size:1.8rem;font-weight:900;color:var(--text);line-height:1}
+.stat-sub{font-size:.7rem;color:var(--g500);margin-top:.15rem}
 
-/* ── ARENA GRID ───────────────────────────────────────── */
-.arena-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
-.arena-card{
-  border:2px solid var(--g300);border-radius:var(--r);
-  padding:.75rem;text-align:center;transition:all .2s;background:#fff
-}
+/* ── ARENA ───────────────────────────────────────────── */
+.arena-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.arena-card{border:2px solid var(--g300);border-radius:var(--r);padding:.65rem .5rem;text-align:center;transition:all .2s;background:#fff}
 .arena-card.active{border-color:var(--orange);background:#fff8f2}
 .arena-card.done{border-color:var(--green);background:#f0fff8}
 .arena-card.lf{border-color:#a78bfa;background:#faf5ff}
-.arena-num{font-size:.68rem;font-weight:800;color:var(--g500);text-transform:uppercase;letter-spacing:.08em}
-.arena-teams{font-size:.82rem;font-weight:700;margin-top:.25rem;line-height:1.4}
-.arena-cat{font-size:.68rem;color:var(--g600);margin-top:.15rem;font-style:italic}
+.arena-num{font-size:.65rem;font-weight:800;color:var(--g500);text-transform:uppercase;letter-spacing:.06em}
+.arena-teams{font-size:.78rem;font-weight:700;margin-top:.2rem;line-height:1.4}
+.arena-cat{font-size:.65rem;color:var(--g600);margin-top:.1rem;font-style:italic}
 
-/* ── MATCH ITEM ───────────────────────────────────────── */
-.match-list{display:flex;flex-direction:column;gap:.35rem}
+/* ── MATCH ITEMS ─────────────────────────────────────── */
+.match-list{display:flex;flex-direction:column;gap:.32rem}
 .match-item{
-  display:flex;align-items:center;gap:.5rem;
+  display:flex;align-items:center;gap:.45rem;
   padding:.55rem .75rem;border:1.5px solid var(--g200);
-  border-radius:7px;transition:all .2s;background:#fff
+  border-radius:8px;transition:all .15s;background:#fff;
+  min-height:44px
 }
 .match-item.clickable{cursor:pointer}
-.match-item.clickable:hover{border-color:var(--navy);background:var(--g100);transform:translateY(-1px);box-shadow:var(--sh1)}
+.match-item.clickable:active{background:var(--g100);border-color:var(--navy)}
 .match-item.done{border-color:#b7f5d8;background:#f0fff8}
 .match-item.ongoing{border-color:#fde68a;background:#fffbeb}
-.match-teams{flex:1;display:flex;align-items:center;gap:.45rem;font-size:.84rem;flex-wrap:wrap}
-.match-team{font-weight:700}
-.match-vs{color:var(--g400);font-size:.75rem}
-.match-result{font-size:.78rem;font-weight:800}
-.match-arena-lbl{font-size:.7rem;color:var(--g500);white-space:nowrap}
-.win{color:var(--green)}
-.lose{color:var(--red)}
-.draw-c{color:#ca8a04}
+.match-teams{flex:1;display:flex;align-items:center;gap:.4rem;font-size:.84rem;min-width:0;flex-wrap:wrap}
+.match-team{font-weight:700;white-space:nowrap}
+.match-vs{color:var(--g400);font-size:.73rem;flex-shrink:0}
+.match-result{font-size:.76rem;font-weight:800;white-space:nowrap}
+.match-arena-lbl{font-size:.68rem;color:var(--g500);white-space:nowrap;flex-shrink:0}
+.win{color:var(--green)} .lose{color:var(--red)} .draw-c{color:#ca8a04}
 
-/* ── GROUP LABEL ──────────────────────────────────────── */
+/* ── GROUP COLORS ────────────────────────────────────── */
 .gl-A{color:#1d4ed8}.gl-B{color:#dc2626}.gl-C{color:#16a34a}.gl-D{color:#9333ea}
 .gl-E{color:#ea580c}.gl-F{color:#0891b2}.gl-G{color:#ca8a04}.gl-H{color:#db2777}
 
-/* ── BRACKET ──────────────────────────────────────────── */
-.bracket-section{margin-top:1.25rem;padding-top:1.25rem;border-top:2px dashed var(--g200)}
-.bracket-stage-title{font-size:.9rem;font-weight:800;color:var(--navy);margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+/* ── BRACKET ─────────────────────────────────────────── */
+.bracket-section{margin-top:1.1rem;padding-top:1.1rem;border-top:2px dashed var(--g200)}
+.bracket-stage-title{font-size:.88rem;font-weight:800;color:var(--navy);margin-bottom:.65rem;display:flex;align-items:center;gap:.35rem}
 
-/* ── PROGRESS BAR ─────────────────────────────────────── */
-.prog-bar{background:var(--g200);border-radius:4px;height:7px;overflow:hidden}
+/* ── PROGRESS ────────────────────────────────────────── */
+.prog-bar{background:var(--g200);border-radius:4px;height:6px;overflow:hidden}
 .prog-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s}
 
-/* ── SECTION HEADER ───────────────────────────────────── */
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;gap:.75rem;flex-wrap:wrap}
-.sec-title{font-size:1.25rem;font-weight:900;color:var(--navy)}
+/* ── SECTION HEADER ──────────────────────────────────── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:.75rem;flex-wrap:wrap}
+.sec-title{font-size:1.15rem;font-weight:900;color:var(--navy)}
 
-/* ── VIEWS ────────────────────────────────────────────── */
+/* ── VIEWS ───────────────────────────────────────────── */
 .view{display:none}
 .view.active{display:block}
 
-/* ── GRID HELPERS ─────────────────────────────────────── */
+/* ── GRID HELPERS ────────────────────────────────────── */
 .g2{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
-.gauto{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
+.gauto{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
 
-/* ── MODALS ───────────────────────────────────────────── */
+/* ── MODALS ──────────────────────────────────────────── */
 .overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:500;
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;
   display:flex;align-items:center;justify-content:center;padding:1rem
 }
 .overlay.hidden{display:none}
 .modal{
   background:#fff;border-radius:var(--rl);width:100%;max-width:460px;
-  box-shadow:var(--sh3);overflow:hidden;max-height:90vh;display:flex;flex-direction:column
+  box-shadow:var(--sh3);overflow:hidden;max-height:90vh;
+  display:flex;flex-direction:column
 }
-.modal.wide{max-width:640px}
-.modal-hdr{
-  padding:.9rem 1.2rem;background:var(--navy);color:#fff;
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0
-}
-.modal-hdr h3{font-size:.95rem;font-weight:800}
-.modal-close{background:none;color:#fff;font-size:1.2rem;padding:.1rem .3rem;border-radius:4px;line-height:1;transition:background .2s}
-.modal-close:hover{background:rgba(255,255,255,.2)}
-.modal-body{padding:1.2rem;overflow-y:auto;flex:1}
-.modal-foot{padding:.85rem 1.2rem;border-top:1px solid var(--g200);display:flex;gap:.5rem;justify-content:flex-end;flex-shrink:0}
+.modal.wide{max-width:580px}
+.modal-hdr{padding:.85rem 1.1rem;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-hdr h3{font-size:.92rem;font-weight:800}
+.modal-close{background:none;color:#fff;font-size:1.25rem;padding:.1rem .35rem;border-radius:4px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:1.1rem;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.modal-foot{padding:.8rem 1.1rem;border-top:1px solid var(--g200);display:flex;gap:.45rem;justify-content:flex-end;flex-shrink:0}
 
-/* ── FORM ─────────────────────────────────────────────── */
-.fg{margin-bottom:.9rem}
+/* ── FORMS ───────────────────────────────────────────── */
+.fg{margin-bottom:.85rem}
 .fg:last-child{margin-bottom:0}
-.fl{display:block;font-size:.8rem;font-weight:700;color:var(--g800);margin-bottom:.35rem}
-.fc{
-  width:100%;padding:.45rem .75rem;
-  border:1.5px solid var(--g400);border-radius:6px;
-  font-size:.85rem;transition:border-color .2s;background:#fff
-}
+.fl{display:block;font-size:.78rem;font-weight:700;color:var(--g800);margin-bottom:.3rem}
+.fc{width:100%;padding:.5rem .75rem;border:1.5px solid var(--g400);border-radius:6px;font-size:.9rem;transition:border-color .2s;background:#fff;min-height:44px}
 .fc:focus{outline:none;border-color:var(--navy)}
-.frow{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
-.frow2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.lf-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
 
-/* ── RESULT BUTTONS ───────────────────────────────────── */
-.res-btns{display:flex;gap:.5rem}
-.res-btn{
-  flex:1;padding:.6rem .4rem;border-radius:7px;font-size:.8rem;font-weight:800;
-  border:2px solid var(--g300);background:#fff;color:var(--g600);transition:all .2s
-}
+/* ── RESULT BUTTONS ──────────────────────────────────── */
+.res-btns{display:flex;gap:.45rem}
+.res-btn{flex:1;padding:.65rem .3rem;border-radius:8px;font-size:.78rem;font-weight:800;border:2px solid var(--g300);background:#fff;color:var(--g600);transition:all .15s;min-height:52px}
 .res-btn.sel-a{border-color:var(--navy);background:var(--navy);color:#fff}
 .res-btn.sel-d{border-color:var(--gold);background:var(--gold);color:#1a2a00}
 .res-btn.sel-b{border-color:var(--red);background:var(--red);color:#fff}
-.match-preview{
-  background:var(--g100);border-radius:8px;padding:.65rem;
-  text-align:center;font-size:.9rem;font-weight:700;margin-bottom:.75rem;
-  display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap
-}
-.match-preview .versus{color:var(--g400);font-size:.8rem;font-weight:400}
+.match-preview{background:var(--g100);border-radius:8px;padding:.65rem;text-align:center;font-size:.9rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;justify-content:center;gap:.45rem;flex-wrap:wrap}
+.match-preview .versus{color:var(--g400);font-size:.78rem;font-weight:400}
 
-/* ── INLINE EDIT ──────────────────────────────────────── */
-.editable{cursor:pointer;border-bottom:1px dashed var(--g400);transition:color .2s}
+/* ── MISC ────────────────────────────────────────────── */
+.editable{cursor:pointer;border-bottom:1px dashed var(--g400)}
 .editable:hover{color:var(--navy)}
-
-/* ── MISC ─────────────────────────────────────────────── */
-.mt1{margin-top:.5rem}.mt2{margin-top:1rem}.mt3{margin-top:1.5rem}
+.mt1{margin-top:.5rem}.mt2{margin-top:1rem}
 .mb1{margin-bottom:.5rem}.mb2{margin-bottom:1rem}
 .flex{display:flex}.ai-c{align-items:center}.jc-sb{justify-content:space-between}
-.gap1{gap:.5rem}.gap2{gap:1rem}.fw{flex-wrap:wrap}
+.gap1{gap:.5rem}.gap2{gap:1rem}
 .fw7{font-weight:700}.fw9{font-weight:900}
-.tc{text-align:center}
-.muted{color:var(--g500)}
-.small{font-size:.75rem}
-.divider{height:1px;background:var(--g200);margin:1.1rem 0}
-.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:.75rem 1rem;font-size:.82rem;color:#1e40af;margin-bottom:1rem}
-.warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:.75rem 1rem;font-size:.82rem;color:#92400e;margin-bottom:1rem}
+.muted{color:var(--g500)}.small{font-size:.75rem}
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:.7rem .9rem;font-size:.8rem;color:#1e40af;margin-bottom:.85rem}
+.warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:.7rem .9rem;font-size:.8rem;color:#92400e;margin-bottom:.85rem}
 
-/* ── RESPONSIVE ───────────────────────────────────────── */
-@media(max-width:768px){
-  .main{padding:.85rem}
-  .g2,.g3{grid-template-columns:1fr}
-  .arena-grid{grid-template-columns:repeat(2,1fr)}
-  .frow{grid-template-columns:1fr 1fr}
-  .hdr-txt .title{font-size:.9rem}
-}
-@media(max-width:480px){
-  .arena-grid{grid-template-columns:1fr 1fr}
-  .frow{grid-template-columns:1fr}
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+═══════════════════════════════════════════════════════ */
+
+/* Tablet ≤ 900px */
+@media(max-width:900px){
   .stats-row{grid-template-columns:repeat(2,1fr)}
-  .tab-btn{font-size:.75rem;padding:.4rem .7rem}
+  .gauto{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+}
+
+/* Mobile ≤ 640px: switch to bottom nav, card tables */
+@media(max-width:640px){
+  body{font-size:14px}
+
+  /* Header compact */
+  .hdr{padding:.55rem .85rem .55rem .85rem}
+  .hdr-logo{font-size:1.4rem}
+  .hdr-txt .title{font-size:.85rem}
+  .hdr-txt .sub{display:none}
+  .btn-hdr{padding:.3rem .55rem;font-size:.72rem}
+  .badge-admin{font-size:.65rem;padding:.15rem .45rem}
+
+  /* Top nav → hidden; bottom nav → visible */
+  .top-nav{display:none}
+  .bottom-nav{display:block}
+
+  /* Main padding */
+  .main{padding:.75rem .75rem}
+
+  /* Stats: 2×2 */
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:.6rem;margin-bottom:.85rem}
+  .stat-val{font-size:1.6rem}
+  .stat-card{padding:.7rem .85rem}
+
+  /* Cards */
+  .card-hdr{padding:.7rem .85rem;flex-wrap:wrap;gap:.5rem}
+  .card-body{padding:.85rem}
+  .card-title{font-size:.88rem}
+
+  /* Grid collapse */
+  .g2{grid-template-columns:1fr}
+  .gauto{grid-template-columns:1fr}
+
+  /* Tabs: horizontal scroll */
+  .tab-bar{gap:.4rem;padding-bottom:.2rem}
+  .tab-btn{padding:.35rem .75rem;font-size:.78rem;min-height:40px}
+
+  /* Desktop tables → HIDDEN on mobile for standings/LF */
+  .standings-desktop{display:none}
+  .standings-mobile{display:block}
+  .lf-table-wrap{display:none}
+  .lf-cards{display:block}
+
+  /* Match items: bigger touch target */
+  .match-item{padding:.6rem .75rem;min-height:48px}
+  .match-teams{font-size:.85rem}
+
+  /* Arena grid: 2 cols */
+  .arena-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}
+  .arena-card{padding:.55rem .4rem}
+  .arena-teams{font-size:.75rem}
+
+  /* Modals: bottom sheet */
+  .overlay{padding:0;align-items:flex-end}
+  .modal,.modal.wide{
+    max-width:100%;border-radius:20px 20px 0 0;
+    max-height:92vh;
+    padding-bottom:var(--safe-b)
+  }
+  .modal-hdr{border-radius:0}
+
+  /* LF modal: stack vertically */
+  .lf-grid{grid-template-columns:1fr}
+
+  /* Buttons */
+  .btn{min-height:42px}
+  .btn-sm{min-height:36px}
+  .modal-foot{padding:.75rem .9rem}
+  .modal-foot .btn{flex:1;justify-content:center}
+
+  /* Summary table: hide some columns */
+  .sum-hide{display:none}
+
+  /* Section header */
+  .sec-title{font-size:1.05rem}
+}
+
+/* Very small ≤ 375px */
+@media(max-width:375px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .tab-btn{font-size:.73rem;padding:.32rem .65rem}
+  .arena-grid{grid-template-columns:repeat(2,1fr)}
+  .hdr-txt .title{font-size:.8rem}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      MODALS
-════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════════════════ -->
 
 <!-- Login -->
 <div class="overlay hidden" id="loginOverlay">
@@ -315,7 +405,7 @@ tbody tr:hover{background:var(--g100)}
     <div class="modal-body">
       <div class="fg">
         <label class="fl">관리자 비밀번호</label>
-        <input type="password" class="fc" id="pwInput" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')doLogin()">
+        <input type="password" class="fc" id="pwInput" placeholder="비밀번호 입력" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <p id="loginErr" style="color:var(--red);font-size:.82rem;display:none">❌ 비밀번호가 올바르지 않습니다.</p>
     </div>
@@ -330,7 +420,7 @@ tbody tr:hover{background:var(--g100)}
 <div class="overlay hidden" id="matchOverlay">
   <div class="modal">
     <div class="modal-hdr">
-      <h3 id="matchModalTitle">⚔️ 경기 결과 입력</h3>
+      <h3>⚔️ 경기 결과 입력</h3>
       <button class="modal-close" onclick="closeModal('matchOverlay')">✕</button>
     </div>
     <div class="modal-body">
@@ -340,7 +430,7 @@ tbody tr:hover{background:var(--g100)}
         <span id="mTeamB">팀B</span>
       </div>
       <div class="fg">
-        <label class="fl">경기 결과 선택</label>
+        <label class="fl">경기 결과</label>
         <div class="res-btns">
           <button class="res-btn" id="rBtnA" onclick="selectResult('A')"><span id="rLblA">팀A 승리</span></button>
           <button class="res-btn" id="rBtnD" onclick="selectResult('D')">무승부</button>
@@ -349,19 +439,16 @@ tbody tr:hover{background:var(--g100)}
       </div>
       <div class="frow2">
         <div class="fg">
-          <label class="fl">경기장 배정</label>
+          <label class="fl">경기장</label>
           <select class="fc" id="mArena">
             <option value="">선택</option>
-            <option value="1">경기장 1</option>
-            <option value="2">경기장 2</option>
-            <option value="3">경기장 3</option>
-            <option value="4">경기장 4</option>
-            <option value="5">경기장 5</option>
-            <option value="6">경기장 6</option>
+            <option value="1">경기장 1</option><option value="2">경기장 2</option>
+            <option value="3">경기장 3</option><option value="4">경기장 4</option>
+            <option value="5">경기장 5</option><option value="6">경기장 6</option>
           </select>
         </div>
         <div class="fg">
-          <label class="fl">경기 상태</label>
+          <label class="fl">상태</label>
           <select class="fc" id="mStatus">
             <option value="pending">대기중</option>
             <option value="ongoing">진행중</option>
@@ -386,37 +473,19 @@ tbody tr:hover{background:var(--g100)}
       <button class="modal-close" onclick="closeModal('lfOverlay')">✕</button>
     </div>
     <div class="modal-body">
-      <p class="fw7 mb2" id="lfPName" style="font-size:1rem"></p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+      <p class="fw7 mb2" id="lfPName" style="font-size:1rem;color:var(--navy)"></p>
+      <div class="lf-grid">
         <div>
           <p class="fw7 mb1 small" style="color:var(--navy)">▶ 1차 경기</p>
-          <div class="fg">
-            <label class="fl">점수</label>
-            <input type="number" class="fc" id="lf1s" min="0" placeholder="0">
-          </div>
-          <div class="fg">
-            <label class="fl">보너스 점수</label>
-            <input type="number" class="fc" id="lf1b" min="0" placeholder="0">
-          </div>
-          <div class="fg">
-            <label class="fl">시간 (초)</label>
-            <input type="number" class="fc" id="lf1t" min="0" step="0.01" placeholder="0.00">
-          </div>
+          <div class="fg"><label class="fl">점수</label><input type="number" class="fc" id="lf1s" min="0" placeholder="0" inputmode="numeric"></div>
+          <div class="fg"><label class="fl">보너스 점수</label><input type="number" class="fc" id="lf1b" min="0" placeholder="0" inputmode="numeric"></div>
+          <div class="fg"><label class="fl">시간 (초)</label><input type="number" class="fc" id="lf1t" min="0" step="0.01" placeholder="0.00" inputmode="decimal"></div>
         </div>
         <div>
           <p class="fw7 mb1 small" style="color:var(--red)">▶ 2차 경기</p>
-          <div class="fg">
-            <label class="fl">점수</label>
-            <input type="number" class="fc" id="lf2s" min="0" placeholder="0">
-          </div>
-          <div class="fg">
-            <label class="fl">보너스 점수</label>
-            <input type="number" class="fc" id="lf2b" min="0" placeholder="0">
-          </div>
-          <div class="fg">
-            <label class="fl">시간 (초)</label>
-            <input type="number" class="fc" id="lf2t" min="0" step="0.01" placeholder="0.00">
-          </div>
+          <div class="fg"><label class="fl">점수</label><input type="number" class="fc" id="lf2s" min="0" placeholder="0" inputmode="numeric"></div>
+          <div class="fg"><label class="fl">보너스 점수</label><input type="number" class="fc" id="lf2b" min="0" placeholder="0" inputmode="numeric"></div>
+          <div class="fg"><label class="fl">시간 (초)</label><input type="number" class="fc" id="lf2t" min="0" step="0.01" placeholder="0.00" inputmode="decimal"></div>
         </div>
       </div>
     </div>
@@ -431,13 +500,13 @@ tbody tr:hover{background:var(--g100)}
 <div class="overlay hidden" id="nameOverlay">
   <div class="modal">
     <div class="modal-hdr">
-      <h3>✏️ 팀/참가자 이름 수정</h3>
+      <h3>✏️ 이름 수정</h3>
       <button class="modal-close" onclick="closeModal('nameOverlay')">✕</button>
     </div>
     <div class="modal-body">
       <div class="fg">
-        <label class="fl">이름</label>
-        <input type="text" class="fc" id="nameInput" placeholder="이름을 입력하세요" onkeydown="if(event.key==='Enter')saveName()">
+        <label class="fl">팀 / 참가자 이름</label>
+        <input type="text" class="fc" id="nameInput" placeholder="이름 입력" autocomplete="off" onkeydown="if(event.key==='Enter')saveName()">
       </div>
     </div>
     <div class="modal-foot">
@@ -447,9 +516,9 @@ tbody tr:hover{background:var(--g100)}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      HEADER
-════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════════════════ -->
 <header class="hdr">
   <div class="hdr-brand">
     <div class="hdr-logo">🤖</div>
@@ -459,67 +528,66 @@ tbody tr:hover{background:var(--g100)}
     </div>
   </div>
   <div class="hdr-actions">
-    <span class="badge-admin" id="adminBadge" style="display:none">👑 관리자 모드</span>
+    <span class="badge-admin" id="adminBadge" style="display:none">👑 관리자</span>
     <button class="btn-hdr danger" id="resetBtn" style="display:none" onclick="resetAll()">🗑 초기화</button>
     <button class="btn-hdr" id="adminBtn" onclick="toggleAdmin()">관리자 로그인</button>
   </div>
 </header>
 
-<!-- ═══════════════════════════════════════════════════════
-     NAVIGATION
-════════════════════════════════════════════════════════ -->
-<nav class="main-nav">
+<!-- ══════════════════════════════════════════════════════
+     TOP NAV (데스크탑)
+══════════════════════════════════════════════════════ -->
+<nav class="top-nav" id="topNav">
   <button class="nav-btn active" onclick="showView('dashboard')">📊 대시보드</button>
   <button class="nav-btn" onclick="showView('sumo')">🥋 SUMO</button>
   <button class="nav-btn" onclick="showView('linefollow')">🚗 LINE FOLLOW</button>
   <button class="nav-btn" onclick="showView('othello')">⚫ OTHELLO</button>
 </nav>
 
-<!-- ═══════════════════════════════════════════════════════
-     MAIN CONTENT
-════════════════════════════════════════════════════════ -->
-<main class="main">
+<!-- ══════════════════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════════════════ -->
+<main class="main" id="mainContent">
 
-  <!-- ── DASHBOARD ──────────────────────────────────────── -->
+  <!-- ── DASHBOARD ───────────────────────────────────── -->
   <div class="view active" id="view-dashboard">
     <div class="sec-hdr">
       <div class="sec-title">📊 전체 진행 현황</div>
       <div class="muted small" id="updatedAt"></div>
     </div>
 
-    <!-- Stats -->
     <div class="stats-row" id="statsRow"></div>
 
-    <!-- Summary Table -->
     <div class="card mb2">
-      <div class="card-hdr"><div class="card-title">📋 종목별 진행 현황</div></div>
+      <div class="card-hdr"><div class="card-title">📋 종목별 현황</div></div>
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th>종목</th><th>카테고리</th><th>참가팀</th>
-            <th>현재 단계</th><th>진행률</th><th>완료/전체</th>
+            <th>종목</th><th>카테고리</th>
+            <th class="sum-hide">참가팀</th>
+            <th>단계</th><th>진행률</th>
+            <th class="sum-hide">완료/전체</th>
           </tr></thead>
           <tbody id="summaryTbody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Arena Status -->
     <div class="card">
-      <div class="card-hdr"><div class="card-title">🏟️ 경기장 현황 (SUMO/OTHELLO)</div></div>
+      <div class="card-hdr"><div class="card-title">🏟️ 경기장 현황</div></div>
       <div class="card-body">
         <div class="arena-grid" id="arenaGrid"></div>
         <div class="mt2">
-          <div class="card-title small mb1" style="font-size:.82rem">🚗 LINE FOLLOW 경기장</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem" id="lfArenaGrid"></div>
+          <div class="fw7 small mb1" style="font-size:.8rem;color:var(--g600)">🚗 LINE FOLLOW 경기장</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem" id="lfArenaGrid"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── SUMO ───────────────────────────────────────────── -->
+  <!-- ── SUMO ─────────────────────────────────────────── -->
   <div class="view" id="view-sumo">
-    <div class="sec-hdr mb2" style="margin-bottom:0">
+    <div class="sec-hdr" style="margin-bottom:0">
       <div class="sec-title">🥋 SUMO</div>
     </div>
     <div class="tab-bar mt2">
@@ -531,10 +599,10 @@ tbody tr:hover{background:var(--g100)}
     <div id="sumoContent"></div>
   </div>
 
-  <!-- ── LINE FOLLOW ────────────────────────────────────── -->
+  <!-- ── LINE FOLLOW ───────────────────────────────────── -->
   <div class="view" id="view-linefollow">
     <div class="sec-hdr" style="margin-bottom:0">
-      <div class="sec-title">🚗 LINE FOLLOW CHALLENGE</div>
+      <div class="sec-title">🚗 LINE FOLLOW</div>
     </div>
     <div class="tab-bar mt2">
       <button class="tab-btn active" onclick="setLfTab('junior')">Junior<br><small>4팀</small></button>
@@ -543,45 +611,66 @@ tbody tr:hover{background:var(--g100)}
     <div id="lfContent"></div>
   </div>
 
-  <!-- ── OTHELLO ────────────────────────────────────────── -->
+  <!-- ── OTHELLO ───────────────────────────────────────── -->
   <div class="view" id="view-othello">
     <div class="sec-hdr mb2">
       <div class="sec-title">⚫ OTHELLO</div>
     </div>
     <div id="othelloContent"></div>
   </div>
-
 </main>
 
-<!-- ═══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
+     BOTTOM NAV (모바일)
+══════════════════════════════════════════════════════ -->
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-btn active" onclick="showView('dashboard')">
+      <span class="bnav-ico">📊</span>
+      <span class="bnav-lbl">대시보드</span>
+    </button>
+    <button class="bnav-btn" onclick="showView('sumo')">
+      <span class="bnav-ico">🥋</span>
+      <span class="bnav-lbl">SUMO</span>
+    </button>
+    <button class="bnav-btn" onclick="showView('linefollow')">
+      <span class="bnav-ico">🚗</span>
+      <span class="bnav-lbl">LINE</span>
+    </button>
+    <button class="bnav-btn" onclick="showView('othello')">
+      <span class="bnav-ico">⚫</span>
+      <span class="bnav-lbl">OTHELLO</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
      JAVASCRIPT
-════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════════════════ -->
 <script>
 'use strict';
 
-/* ── CONSTANTS ───────────────────────────────────────── */
 const ADMIN_PW = 'roborave2026';
 const GL = ['A','B','C','D','E','F','G','H'];
 
-/* ── STATE ───────────────────────────────────────────── */
-let S;       // global state
-let curView  = 'dashboard';
-let sumoTab  = 'juniorSpike';
-let lfTab    = 'junior';
-let editMatch   = null;   // {section,catKey,matchId,ko}
-let editLf      = null;   // {catKey,pid}
-let editName    = null;   // {section,catKey,pid}
-let curResult   = null;   // 'A'|'B'|'D'|null
+let S;
+let curView = 'dashboard';
+let sumoTab = 'juniorSpike';
+let lfTab   = 'junior';
+let editMatch = null;
+let editLf    = null;
+let editName  = null;
+let curResult = null;
 
-/* ── DEFAULT STATE ───────────────────────────────────── */
+/* ── DEFAULT STATE ────────────────────────────────── */
 function mkDefault() {
   return {
     isAdmin: false,
     sumo: {
-      juniorSpike: mkSumo('JS', 48, 8),   // 8 grps × 6
-      seniorSpike: mkSumo('SS', 12, 2),   // 2 grps × 6
-      juniorOpen:  mkSumo('JO',  8, 2),   // 2 grps × 4
-      seniorOpen:  mkSumo('SO',  6, 2),   // 2 grps × 3
+      juniorSpike: mkSumo('JS', 48, 8),
+      seniorSpike: mkSumo('SS', 12, 2),
+      juniorOpen:  mkSumo('JO',  8, 2),
+      seniorOpen:  mkSumo('SO',  6, 2),
     },
     lineFollow: {
       junior: mkLf('LFJ', 4),
@@ -595,88 +684,51 @@ function mkSumo(pfx, total, nGroups) {
   const perGroup = total / nGroups;
   const teams = [];
   for (let i = 0; i < total; i++) {
-    teams.push({
-      id:    `${pfx}${String(i+1).padStart(2,'0')}`,
-      name:  `팀 ${i+1}`,
-      group: Math.floor(i / perGroup)
-    });
+    teams.push({ id:`${pfx}${String(i+1).padStart(2,'0')}`, name:`팀 ${i+1}`, group:Math.floor(i/perGroup) });
   }
   const matches = [];
   for (let g = 0; g < nGroups; g++) {
     const gt = teams.filter(t => t.group === g);
-    for (let i = 0; i < gt.length; i++) {
-      for (let j = i+1; j < gt.length; j++) {
-        matches.push({
-          id: `${pfx}_G${g}_${i}_${j}`,
-          stage: 'group', group: g,
-          teamA: gt[i].id, teamB: gt[j].id,
-          result: null, arena: null, status: 'pending'
-        });
-      }
-    }
+    for (let i = 0; i < gt.length; i++)
+      for (let j = i+1; j < gt.length; j++)
+        matches.push({ id:`${pfx}_G${g}_${i}_${j}`, stage:'group', group:g, teamA:gt[i].id, teamB:gt[j].id, result:null, arena:null, status:'pending' });
   }
-  // advancing = nGroups * 2 top teams
-  const advancing = nGroups * 2;
-  const koStage = advancing >= 16 ? 'r16' : 'sf';
-  return { teams, matches, knockoutMatches: [], koStage };
+  return { teams, matches, knockoutMatches:[], koStage: nGroups*2 >= 16 ? 'r16' : 'sf' };
 }
 
 function mkLf(pfx, count) {
-  const participants = [];
-  for (let i = 0; i < count; i++) {
-    participants.push({
-      id:    `${pfx}${String(i+1).padStart(2,'0')}`,
-      name:  `참가자 ${i+1}`,
-      round1: { score: null, bonus: null, time: null },
-      round2: { score: null, bonus: null, time: null }
-    });
-  }
-  return { participants };
+  return { participants: Array.from({length:count}, (_,i) => ({
+    id:`${pfx}${String(i+1).padStart(2,'0')}`, name:`참가자 ${i+1}`,
+    round1:{score:null,bonus:null,time:null}, round2:{score:null,bonus:null,time:null}
+  }))};
 }
 
 function mkOthello(count) {
-  const gA = Math.ceil(count / 2);  // 6
-  const participants = [];
-  for (let i = 0; i < count; i++) {
-    participants.push({
-      id:    `OT${String(i+1).padStart(2,'0')}`,
-      name:  `참가자 ${i+1}`,
-      group: i < gA ? 0 : 1
-    });
-  }
+  const gA = Math.ceil(count/2);
+  const participants = Array.from({length:count}, (_,i) => ({
+    id:`OT${String(i+1).padStart(2,'0')}`, name:`참가자 ${i+1}`, group: i < gA ? 0 : 1
+  }));
   const matches = [];
   for (let g = 0; g < 2; g++) {
     const gp = participants.filter(p => p.group === g);
-    for (let i = 0; i < gp.length; i++) {
-      for (let j = i+1; j < gp.length; j++) {
-        matches.push({
-          id: `OT_G${g}_${i}_${j}`,
-          stage: 'group', group: g,
-          teamA: gp[i].id, teamB: gp[j].id,
-          result: null, arena: '1', status: 'pending'
-        });
-      }
-    }
+    for (let i = 0; i < gp.length; i++)
+      for (let j = i+1; j < gp.length; j++)
+        matches.push({ id:`OT_G${g}_${i}_${j}`, stage:'group', group:g, teamA:gp[i].id, teamB:gp[j].id, result:null, arena:'1', status:'pending' });
   }
-  return { participants, matches, knockoutMatches: [] };
+  return { participants, matches, knockoutMatches:[] };
 }
 
-/* ── PERSISTENCE ─────────────────────────────────────── */
-function save() {
-  try { localStorage.setItem('rrk_state', JSON.stringify(S)); } catch(e) {}
-}
+/* ── PERSISTENCE ──────────────────────────────────── */
+function save() { try { localStorage.setItem('rrk_state', JSON.stringify(S)); } catch(e) {} }
 function load() {
-  try {
-    const raw = localStorage.getItem('rrk_state');
-    if (raw) { S = JSON.parse(raw); return; }
-  } catch(e) {}
+  try { const r = localStorage.getItem('rrk_state'); if (r) { S = JSON.parse(r); return; } } catch(e) {}
   S = mkDefault();
 }
 
-/* ── CALCULATIONS ────────────────────────────────────── */
+/* ── CALCULATIONS ─────────────────────────────────── */
 function getStandings(teams, matches) {
   const st = {};
-  teams.forEach(t => { st[t.id] = { id:t.id, name:t.name, W:0, D:0, L:0, pts:0, played:0 }; });
+  teams.forEach(t => { st[t.id] = {id:t.id, name:t.name, W:0, D:0, L:0, pts:0, played:0}; });
   matches.forEach(m => {
     if (m.status !== 'done' || !m.result) return;
     st[m.teamA].played++; st[m.teamB].played++;
@@ -689,741 +741,627 @@ function getStandings(teams, matches) {
 
 function getLfRanking(participants) {
   return [...participants].map(p => {
-    const r1 = p.round1, r2 = p.round2;
-    const has1 = r1.score !== null;
-    const has2 = r2.score !== null;
-    let best = null, bestRnd = 0;
+    const r1=p.round1, r2=p.round2, has1=r1.score!==null, has2=r2.score!==null;
+    let best=null, bestRnd=0;
     if (has1 && has2) {
-      const t1 = r1.score + r1.bonus, t2 = r2.score + r2.bonus;
-      if (t1 > t2 || (t1 === t2 && r1.time <= r2.time)) { best = r1; bestRnd = 1; }
-      else { best = r2; bestRnd = 2; }
-    } else if (has1) { best = r1; bestRnd = 1; }
-    else if (has2) { best = r2; bestRnd = 2; }
-    return { ...p, best, bestRnd, hasBest: !!best };
-  }).sort((a, b) => {
+      const t1=r1.score+r1.bonus, t2=r2.score+r2.bonus;
+      if (t1>t2||(t1===t2&&r1.time<=r2.time)){best=r1;bestRnd=1;}else{best=r2;bestRnd=2;}
+    } else if (has1){best=r1;bestRnd=1;} else if (has2){best=r2;bestRnd=2;}
+    return {...p, best, bestRnd, hasBest:!!best};
+  }).sort((a,b) => {
     if (!a.hasBest && !b.hasBest) return 0;
-    if (!a.hasBest) return 1;
-    if (!b.hasBest) return -1;
-    const at = a.best.score + a.best.bonus;
-    const bt = b.best.score + b.best.bonus;
-    if (bt !== at) return bt - at;          // 높은 총점 우선
-    return a.best.time - b.best.time;       // 낮은 시간(빠를수록) 우선
+    if (!a.hasBest) return 1; if (!b.hasBest) return -1;
+    const at=a.best.score+a.best.bonus, bt=b.best.score+b.best.bonus;
+    if (bt!==at) return bt-at;
+    return a.best.time - b.best.time;
   });
 }
 
-function matchCounts(allMatches) {
-  const total = allMatches.length;
-  const done  = allMatches.filter(m => m.status === 'done').length;
-  return { total, done, rem: total - done };
-}
+function matchCounts(ms) { return { total:ms.length, done:ms.filter(m=>m.status==='done').length }; }
 
 function globalCounts() {
-  let total = 0, done = 0;
-  const cats = [
-    ...Object.values(S.sumo),
-    S.othello
-  ];
-  cats.forEach(cat => {
-    const g = matchCounts(cat.matches);
-    const k = matchCounts(cat.knockoutMatches || []);
-    total += g.total + k.total;
-    done  += g.done  + k.done;
+  let total=0, done=0;
+  [...Object.values(S.sumo), S.othello].forEach(cat => {
+    const g=matchCounts(cat.matches), k=matchCounts(cat.knockoutMatches||[]);
+    total += g.total+k.total; done += g.done+k.done;
   });
-  return { total, done, rem: total - done };
+  return {total, done, rem:total-done};
 }
 
 function stageLabel(cat) {
-  const allGroup = cat.matches.every(m => m.status === 'done');
-  if (!allGroup) {
-    const done = cat.matches.filter(m => m.status === 'done').length;
-    return done === 0 ? '대기중' : `조별리그 (${done}/${cat.matches.length})`;
+  const allDone = cat.matches.every(m => m.status==='done');
+  if (!allDone) {
+    const d = cat.matches.filter(m=>m.status==='done').length;
+    return d===0 ? '대기중' : `조별리그 (${d}/${cat.matches.length})`;
   }
-  const ko = cat.knockoutMatches || [];
-  if (ko.length === 0) return '조별리그 완료 – 토너먼트 대기';
-  const koDone = ko.every(m => m.status === 'done');
-  if (koDone) return '✅ 완료';
-  const kdone = ko.filter(m => m.status === 'done').length;
-  return `토너먼트 (${kdone}/${ko.length})`;
+  const ko = cat.knockoutMatches||[];
+  if (!ko.length) return '조별 완료 · 토너먼트 대기';
+  const kd = ko.filter(m=>m.status==='done').length;
+  return ko.every(m=>m.status==='done') ? '✅ 완료' : `토너먼트 (${kd}/${ko.length})`;
 }
 
 function lfStageLabel(cat) {
-  const all = cat.participants;
-  const entered1 = all.filter(p => p.round1.score !== null).length;
-  const entered2 = all.filter(p => p.round2.score !== null).length;
-  if (entered1 === 0 && entered2 === 0) return '대기중';
-  if (entered1 === all.length && entered2 === all.length) return '✅ 완료';
-  return `진행중 (1차:${entered1}/${all.length} 2차:${entered2}/${all.length})`;
+  const all=cat.participants, n=all.length;
+  const e1=all.filter(p=>p.round1.score!==null).length;
+  const e2=all.filter(p=>p.round2.score!==null).length;
+  if (!e1&&!e2) return '대기중';
+  if (e1===n&&e2===n) return '✅ 완료';
+  return `진행중 (1차:${e1}/${n} 2차:${e2}/${n})`;
 }
 
-/* ── ARENA STATUS ────────────────────────────────────── */
 function getArenaStatus() {
   const status = {};
-  const process = (matches, category, teams) => {
+  const proc = (matches, category, teams) => {
     matches.forEach(m => {
       if (!m.arena) return;
       const a = String(m.arena);
-      if (m.status === 'ongoing' || (m.status === 'done' && !status[a])) {
-        const tA = teams.find(t => t.id === m.teamA);
-        const tB = teams.find(t => t.id === m.teamB);
-        if (!status[a] || m.status === 'ongoing') {
-          status[a] = {
-            teamA: tA?.name || m.teamA,
-            teamB: tB?.name || m.teamB,
-            cat: category,
-            done: m.status === 'done',
-            ongoing: m.status === 'ongoing'
-          };
-        }
+      if (m.status==='ongoing' || (m.status==='done' && !status[a])) {
+        const tA=teams.find(t=>t.id===m.teamA), tB=teams.find(t=>t.id===m.teamB);
+        if (!status[a] || m.status==='ongoing')
+          status[a] = {teamA:tA?.name||m.teamA, teamB:tB?.name||m.teamB, cat:category, done:m.status==='done', ongoing:m.status==='ongoing'};
       }
     });
   };
-  const sumoNames = { juniorSpike:'Junior Spike', seniorSpike:'Senior Spike', juniorOpen:'Junior Open', seniorOpen:'Senior Open' };
-  Object.entries(S.sumo).forEach(([k, cat]) => {
-    process(cat.matches, `SUMO · ${sumoNames[k]}`, cat.teams);
-    process(cat.knockoutMatches || [], `SUMO · ${sumoNames[k]}`, cat.teams);
+  const sn = {juniorSpike:'Junior Spike', seniorSpike:'Senior Spike', juniorOpen:'Junior Open', seniorOpen:'Senior Open'};
+  Object.entries(S.sumo).forEach(([k,cat]) => {
+    proc(cat.matches, `SUMO·${sn[k]}`, cat.teams);
+    proc(cat.knockoutMatches||[], `SUMO·${sn[k]}`, cat.teams);
   });
-  process(S.othello.matches, 'OTHELLO', S.othello.participants);
-  process(S.othello.knockoutMatches || [], 'OTHELLO', S.othello.participants);
+  proc(S.othello.matches,'OTHELLO',S.othello.participants);
+  proc(S.othello.knockoutMatches||[],'OTHELLO',S.othello.participants);
   return status;
 }
 
-/* ── RENDER: DASHBOARD ───────────────────────────────── */
+/* ── RENDER: DASHBOARD ────────────────────────────── */
 function renderDashboard() {
   const gc = globalCounts();
   const pct = gc.total ? Math.round(gc.done/gc.total*100) : 0;
+
   document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="stat-lbl">총 경기 수</div><div class="stat-val">${gc.total}</div><div class="stat-sub">전체 경기</div></div>
+    <div class="stat-card"><div class="stat-lbl">총 경기</div><div class="stat-val">${gc.total}</div><div class="stat-sub">전체</div></div>
     <div class="stat-card green"><div class="stat-lbl">완료</div><div class="stat-val">${gc.done}</div><div class="stat-sub">경기 완료</div></div>
     <div class="stat-card orange"><div class="stat-lbl">남은 경기</div><div class="stat-val">${gc.rem}</div><div class="stat-sub">진행 예정</div></div>
-    <div class="stat-card" style="border-left-color:var(--navy2)"><div class="stat-lbl">진행률</div><div class="stat-val">${pct}%</div><div class="stat-sub"><div class="prog-bar mt1"><div class="prog-fill" style="width:${pct}%"></div></div></div></div>
-  `;
+    <div class="stat-card navy2"><div class="stat-lbl">진행률</div><div class="stat-val">${pct}%</div><div class="stat-sub"><div class="prog-bar mt1"><div class="prog-fill" style="width:${pct}%"></div></div></div></div>`;
 
-  // Summary table
   const rows = [
-    { sport:'🥋 SUMO', cat:'Junior Spike', teams:48, getData:()=>S.sumo.juniorSpike },
-    { sport:'🥋 SUMO', cat:'Senior Spike', teams:12, getData:()=>S.sumo.seniorSpike },
-    { sport:'🥋 SUMO', cat:'Junior Open',  teams:8,  getData:()=>S.sumo.juniorOpen  },
-    { sport:'🥋 SUMO', cat:'Senior Open',  teams:6,  getData:()=>S.sumo.seniorOpen  },
-    { sport:'🚗 LINE FOLLOW', cat:'Junior', teams:4, isLf:true, getData:()=>S.lineFollow.junior },
-    { sport:'🚗 LINE FOLLOW', cat:'Senior', teams:7, isLf:true, getData:()=>S.lineFollow.senior },
-    { sport:'⚫ OTHELLO', cat:'-', teams:11, getData:()=>S.othello },
+    {sport:'🥋 SUMO', cat:'Junior Spike', teams:48, getData:()=>S.sumo.juniorSpike},
+    {sport:'🥋 SUMO', cat:'Senior Spike', teams:12, getData:()=>S.sumo.seniorSpike},
+    {sport:'🥋 SUMO', cat:'Junior Open',  teams:8,  getData:()=>S.sumo.juniorOpen},
+    {sport:'🥋 SUMO', cat:'Senior Open',  teams:6,  getData:()=>S.sumo.seniorOpen},
+    {sport:'🚗 LINE', cat:'Junior', teams:4, isLf:true, getData:()=>S.lineFollow.junior},
+    {sport:'🚗 LINE', cat:'Senior', teams:7, isLf:true, getData:()=>S.lineFollow.senior},
+    {sport:'⚫ OTHELLO', cat:'-', teams:11, getData:()=>S.othello},
   ];
+
   document.getElementById('summaryTbody').innerHTML = rows.map(row => {
     let total, done, stage;
     if (row.isLf) {
-      const all = row.getData().participants;
-      total = all.length * 2;
-      done  = all.filter(p => p.round1.score !== null).length + all.filter(p => p.round2.score !== null).length;
-      stage = lfStageLabel(row.getData());
+      const all=row.getData().participants;
+      total=all.length*2;
+      done=all.filter(p=>p.round1.score!==null).length+all.filter(p=>p.round2.score!==null).length;
+      stage=lfStageLabel(row.getData());
     } else {
-      const cat = row.getData();
-      const g = matchCounts(cat.matches);
-      const k = matchCounts(cat.knockoutMatches || []);
-      total = g.total + k.total;
-      done  = g.done  + k.done;
-      stage = stageLabel(cat);
+      const cat=row.getData(), g=matchCounts(cat.matches), k=matchCounts(cat.knockoutMatches||[]);
+      total=g.total+k.total; done=g.done+k.done; stage=stageLabel(cat);
     }
     const p = total ? Math.round(done/total*100) : 0;
-    const statusBadge = stage.startsWith('✅')
+    const sb = stage.startsWith('✅')
       ? `<span class="badge badge-done">✓ 완료</span>`
-      : stage === '대기중'
-        ? `<span class="badge badge-pending">대기중</span>`
-        : `<span class="badge badge-ongoing">● 진행중</span>`;
+      : stage==='대기중' ? `<span class="badge badge-pending">대기</span>`
+      : `<span class="badge badge-ongoing">● 진행</span>`;
     return `<tr>
-      <td class="fw7">${row.sport}</td>
-      <td>${row.cat}</td>
-      <td>${row.teams}</td>
-      <td>${statusBadge} <span class="small muted">${stage}</span></td>
-      <td style="min-width:110px"><div class="flex ai-c gap1"><div class="prog-bar" style="flex:1"><div class="prog-fill" style="width:${p}%"></div></div><span class="small">${p}%</span></div></td>
-      <td class="small">${done} / ${total}</td>
+      <td class="fw7" style="white-space:nowrap">${row.sport}</td>
+      <td style="white-space:nowrap">${row.cat}</td>
+      <td class="sum-hide">${row.teams}</td>
+      <td>${sb}</td>
+      <td style="min-width:90px"><div class="flex ai-c gap1"><div class="prog-bar" style="flex:1"><div class="prog-fill" style="width:${p}%"></div></div><span class="small">${p}%</span></div></td>
+      <td class="small sum-hide">${done}/${total}</td>
     </tr>`;
   }).join('');
 
-  // Arena grid
-  const arenaStatus = getArenaStatus();
-  document.getElementById('arenaGrid').innerHTML = Array.from({length:6}, (_,i) => {
-    const a = String(i+1);
-    const st = arenaStatus[a];
+  const as = getArenaStatus();
+  document.getElementById('arenaGrid').innerHTML = Array.from({length:6},(_,i) => {
+    const a=String(i+1), st=as[a];
     let cls='', teams='<span class="muted small">대기중</span>', cat='';
-    if (st) {
-      cls = st.ongoing ? 'active' : 'done';
-      teams = `${st.teamA}<br><span class="muted small">vs</span><br>${st.teamB}`;
-      cat = st.cat;
-    }
-    return `<div class="arena-card ${cls}">
-      <div class="arena-num">경기장 ${i+1}</div>
-      <div class="arena-teams">${teams}</div>
-      ${cat ? `<div class="arena-cat">${cat}</div>` : ''}
-    </div>`;
+    if (st) { cls=st.ongoing?'active':'done'; teams=`${st.teamA}<br><span class="muted small">vs</span><br>${st.teamB}`; cat=st.cat; }
+    return `<div class="arena-card ${cls}"><div class="arena-num">경기장 ${i+1}</div><div class="arena-teams">${teams}</div>${cat?`<div class="arena-cat">${cat}</div>`:''}</div>`;
   }).join('');
 
-  // LF arenas
   document.getElementById('lfArenaGrid').innerHTML = [
-    { label:'Junior 경기장', cat: S.lineFollow.junior },
-    { label:'Senior 경기장', cat: S.lineFollow.senior },
-  ].map(({label, cat}) => {
-    const entered = cat.participants.filter(p => p.round1.score !== null || p.round2.score !== null).length;
-    const total   = cat.participants.length;
-    const cls = entered === total ? 'done' : entered > 0 ? 'lf' : '';
-    return `<div class="arena-card ${cls}">
-      <div class="arena-num">${label}</div>
-      <div class="arena-teams small" style="font-size:.82rem">${entered}/${total} 기록 입력</div>
-    </div>`;
+    {label:'Junior 경기장', cat:S.lineFollow.junior},
+    {label:'Senior 경기장', cat:S.lineFollow.senior},
+  ].map(({label,cat}) => {
+    const entered=cat.participants.filter(p=>p.round1.score!==null||p.round2.score!==null).length;
+    const total=cat.participants.length;
+    const cls=entered===total?'done':entered>0?'lf':'';
+    return `<div class="arena-card ${cls}"><div class="arena-num">${label}</div><div class="arena-teams small">${entered}/${total} 기록 입력</div></div>`;
   }).join('');
 
-  document.getElementById('updatedAt').textContent = '업데이트: ' + new Date().toLocaleTimeString('ko-KR');
+  document.getElementById('updatedAt').textContent = '업데이트: '+new Date().toLocaleTimeString('ko-KR');
 }
 
-/* ── RENDER: SUMO ────────────────────────────────────── */
+/* ── RENDER: SUMO ─────────────────────────────────── */
 function renderSumo() {
   const cat = S.sumo[sumoTab];
-  const nGroups = [...new Set(cat.teams.map(t => t.group))].length;
-  let html = '';
+  const nGroups = [...new Set(cat.teams.map(t=>t.group))].length;
+  let html = `<div class="gauto mb2">`;
 
-  // Group standings cards
-  html += `<div class="gauto mb2">`;
   for (let g = 0; g < nGroups; g++) {
-    const gt = cat.teams.filter(t => t.group === g);
-    const gm = cat.matches.filter(m => m.group === g);
+    const gt = cat.teams.filter(t=>t.group===g);
+    const gm = cat.matches.filter(m=>m.group===g);
     const standings = getStandings(gt, gm);
-    const done = gm.filter(m => m.status === 'done').length;
-    const advancing = 2;
+    const done = gm.filter(m=>m.status==='done').length;
+
+    // Desktop table
+    const desktopTable = `
+      <div class="tbl-wrap standings-desktop"><table>
+        <thead><tr><th>순위</th><th>팀명${S.isAdmin?' <span class="small muted">(클릭=수정)</span>':''}</th><th>경기</th><th class="win">승</th><th class="draw-c">무</th><th class="lose">패</th><th>승점</th></tr></thead>
+        <tbody>${standings.map((s,idx) => {
+          const rc=idx===0?'tr-1st':idx===1?'tr-2nd':'';
+          const adv=idx<2?`<span class="badge badge-adv">↑진출</span>`:'';
+          const nm=S.isAdmin?`<span class="editable" onclick="openName('sumo','${sumoTab}','${s.id}')">${s.name}</span>`:s.name;
+          return `<tr class="${rc}"><td class="fw7">${idx+1}</td><td>${nm} ${adv}</td><td>${s.played}</td><td class="win fw7">${s.W}</td><td class="draw-c">${s.D}</td><td class="lose">${s.L}</td><td class="fw7">${s.pts}</td></tr>`;
+        }).join('')}</tbody>
+      </table></div>`;
+
+    // Mobile cards
+    const mobileCards = `
+      <div class="standings-mobile">
+        ${standings.map((s, idx) => {
+          const cls=idx===0?'sc-1st':idx===1?'sc-2nd':'';
+          const adv=idx<2?`<span class="badge badge-adv">↑진출</span>`:'';
+          const rankIco=idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':`${idx+1}`;
+          const nm=S.isAdmin?`<span class="editable" onclick="openName('sumo','${sumoTab}','${s.id}')">${s.name}</span>`:s.name;
+          return `<div class="scard ${cls}">
+            <div class="scard-rank">${rankIco}</div>
+            <div class="scard-info">
+              <div class="scard-name">${nm} ${adv}</div>
+              <div class="scard-stats">
+                <span class="win">승 ${s.W}</span>
+                <span class="draw-c">무 ${s.D}</span>
+                <span class="lose">패 ${s.L}</span>
+                <span class="muted">${s.played}경기</span>
+              </div>
+            </div>
+            <div class="scard-pts">${s.pts}점</div>
+          </div>`;
+        }).join('')}
+      </div>`;
 
     html += `<div class="card">
       <div class="card-hdr">
-        <div class="card-title"><span class="gl-${GL[g]}">●</span> 그룹 ${GL[g]} <span class="small muted" style="font-weight:400">${gt.length}팀 · ${done}/${gm.length}경기</span></div>
+        <div class="card-title"><span class="gl-${GL[g]}">●</span> 그룹 ${GL[g]} <span class="small muted">${gt.length}팀·${done}/${gm.length}</span></div>
       </div>
-      <div class="tbl-wrap"><table>
-        <thead><tr>
-          <th>순위</th>
-          <th>팀명 ${S.isAdmin ? '<span class="small muted">(클릭=수정)</span>':''}</th>
-          <th>경기</th><th class="win">승</th><th class="draw-c">무</th><th class="lose">패</th><th>승점</th>
-        </tr></thead>
-        <tbody>${standings.map((s, idx) => {
-          const rc = idx===0?'tr-1st':idx===1?'tr-2nd':'';
-          const adv = idx < advancing ? `<span class="badge badge-adv">↑진출</span>` : '';
-          const nm = S.isAdmin
-            ? `<span class="editable" onclick="openName('sumo','${sumoTab}','${s.id}')">${s.name}</span>`
-            : s.name;
-          return `<tr class="${rc}"><td class="fw7">${idx+1}</td><td>${nm} ${adv}</td><td>${s.played}</td><td class="win fw7">${s.W}</td><td class="draw-c">${s.D}</td><td class="lose">${s.L}</td><td class="fw7">${s.pts}</td></tr>`;
-        }).join('')}</tbody>
-      </table></div>
+      ${desktopTable}${mobileCards}
     </div>`;
   }
   html += `</div>`;
 
-  // Admin: generate knockout button
   if (S.isAdmin) {
-    const koReady = cat.matches.every(m => m.status === 'done');
-    const hasKo   = (cat.knockoutMatches || []).length > 0;
+    const hasKo = (cat.knockoutMatches||[]).length > 0;
     if (!hasKo) {
-      html += `<div class="warn-box">조별리그 완료 후 아래 버튼으로 토너먼트를 생성하세요. ${!koReady?'(아직 완료되지 않은 경기가 있습니다)':''}</div>`;
-      html += `<button class="btn btn-primary mb2" onclick="genSumoKO('${sumoTab}')">🏆 토너먼트 브래킷 생성</button>`;
+      html += `<div class="warn-box">조별리그 완료 후 토너먼트를 생성하세요.</div>
+               <button class="btn btn-primary mb2 btn-block" onclick="genSumoKO('${sumoTab}')">🏆 토너먼트 브래킷 생성</button>`;
     } else {
-      html += `<button class="btn btn-ghost btn-sm mb2" onclick="if(confirm('토너먼트를 초기화할까요?')){S.sumo['${sumoTab}'].knockoutMatches=[];save();renderSumo()}">토너먼트 초기화</button>`;
+      html += `<button class="btn btn-ghost btn-sm mb2" onclick="if(confirm('초기화?')){S.sumo['${sumoTab}'].knockoutMatches=[];save();renderSumo()}">토너먼트 초기화</button>`;
     }
   }
 
-  // Match list (group stage)
   html += `<div class="card mb2">
     <div class="card-hdr">
       <div class="card-title">📋 조별리그 경기 목록</div>
-      <span class="small muted">${S.isAdmin ? '경기 클릭 → 결과 입력':'보기 모드'}</span>
+      <span class="small muted">${S.isAdmin?'클릭 → 결과 입력':'보기 모드'}</span>
     </div>
     <div class="card-body">`;
 
   for (let g = 0; g < nGroups; g++) {
-    const gm = cat.matches.filter(m => m.group === g);
-    const done = gm.filter(m => m.status === 'done').length;
+    const gm = cat.matches.filter(m=>m.group===g);
+    const done = gm.filter(m=>m.status==='done').length;
     html += `<div class="mb2">
       <div class="flex ai-c gap1 mb1">
         <span class="fw7 small gl-${GL[g]}">그룹 ${GL[g]}</span>
-        <span class="muted small">${done}/${gm.length} 완료</span>
-        <div class="prog-bar" style="flex:1;max-width:120px"><div class="prog-fill" style="width:${gm.length?Math.round(done/gm.length*100):0}%"></div></div>
+        <span class="muted small">${done}/${gm.length}</span>
+        <div class="prog-bar" style="flex:1;max-width:100px"><div class="prog-fill" style="width:${gm.length?Math.round(done/gm.length*100):0}%"></div></div>
       </div>
-      <div class="match-list">${gm.map(m => renderMatchItem(m, cat.teams, 'sumo', sumoTab, false)).join('')}</div>
+      <div class="match-list">${gm.map(m=>renderMatchItem(m,cat.teams,'sumo',sumoTab,false)).join('')}</div>
     </div>`;
   }
   html += `</div></div>`;
 
-  // Knockout
-  if ((cat.knockoutMatches || []).length > 0) {
-    html += renderKOSection(cat, sumoTab, cat.teams, 'sumo');
-  }
-
+  if ((cat.knockoutMatches||[]).length > 0) html += renderKOSection(cat, sumoTab, cat.teams, 'sumo');
   document.getElementById('sumoContent').innerHTML = html;
 }
 
 function renderMatchItem(m, teams, section, catKey, ko) {
-  const tA = teams.find(t => t.id === m.teamA);
-  const tB = teams.find(t => t.id === m.teamB);
-  const nA = tA?.name || m.teamA || 'TBD';
-  const nB = tB?.name || m.teamB || 'TBD';
-  const sc = m.status==='done'?'done':m.status==='ongoing'?'ongoing':'';
-  const click = S.isAdmin ? `clickable" onclick="openMatch('${section}','${catKey}','${m.id}',${ko})` : '';
-  const resultHtml = m.result
-    ? (m.result==='A' ? `<span class="match-result win">${nA} 승</span>`
-       : m.result==='B' ? `<span class="match-result win">${nB} 승</span>`
-       : `<span class="match-result draw-c">무승부</span>`)
-    : '';
-  const arenaHtml = m.arena ? `<span class="match-arena-lbl">📍${m.arena}번</span>` : '';
-  const badgeHtml = m.status==='done'
-    ? `<span class="badge badge-done">완료</span>`
-    : m.status==='ongoing'
-      ? `<span class="badge badge-ongoing">진행중</span>`
-      : `<span class="badge badge-pending">대기</span>`;
-  return `<div class="match-item ${sc} ${click}">
-    <div class="match-teams">
-      <span class="match-team">${nA}</span>
-      <span class="match-vs">vs</span>
-      <span class="match-team">${nB}</span>
-    </div>
-    ${arenaHtml}${resultHtml}${badgeHtml}
-  </div>`;
+  const tA=teams.find(t=>t.id===m.teamA), tB=teams.find(t=>t.id===m.teamB);
+  const nA=tA?.name||m.teamA||'TBD', nB=tB?.name||m.teamB||'TBD';
+  const sc=m.status==='done'?'done':m.status==='ongoing'?'ongoing':'';
+  const click=S.isAdmin?`clickable" onclick="openMatch('${section}','${catKey}','${m.id}',${ko})`:' ';
+  const res=m.result?(m.result==='A'?`<span class="match-result win">${nA} 승</span>`:m.result==='B'?`<span class="match-result win">${nB} 승</span>`:`<span class="match-result draw-c">무승부</span>`):'';
+  const arena=m.arena?`<span class="match-arena-lbl">📍${m.arena}</span>`:'';
+  const badge=m.status==='done'?`<span class="badge badge-done">완료</span>`:m.status==='ongoing'?`<span class="badge badge-ongoing">진행중</span>`:`<span class="badge badge-pending">대기</span>`;
+  return `<div class="match-item ${sc} ${click}"><div class="match-teams"><span class="match-team">${nA}</span><span class="match-vs">vs</span><span class="match-team">${nB}</span></div>${arena}${res}${badge}</div>`;
 }
 
 function renderKOSection(cat, catKey, teams, section) {
   const byStage = {};
-  (cat.knockoutMatches || []).forEach(m => {
-    if (!byStage[m.stage]) byStage[m.stage] = [];
-    byStage[m.stage].push(m);
-  });
-  const stageOrder = ['r16','qf','sf','final'];
-  const stageNames = { r16:'⚡ 16강', qf:'🔥 8강', sf:'🏅 4강', final:'🏆 결승' };
-
-  let html = `<div class="card"><div class="card-hdr"><div class="card-title">🏆 토너먼트 브래킷</div></div><div class="card-body">`;
-  stageOrder.forEach(stage => {
+  (cat.knockoutMatches||[]).forEach(m => { if(!byStage[m.stage])byStage[m.stage]=[]; byStage[m.stage].push(m); });
+  const order=['r16','qf','sf','final'], names={r16:'⚡ 16강',qf:'🔥 8강',sf:'🏅 4강',final:'🏆 결승'};
+  let html=`<div class="card"><div class="card-hdr"><div class="card-title">🏆 토너먼트</div></div><div class="card-body">`;
+  order.forEach(stage => {
     if (!byStage[stage]) return;
-    html += `<div class="bracket-section">
-      <div class="bracket-stage-title">${stageNames[stage]}</div>
-      <div class="match-list">${byStage[stage].map(m => renderMatchItem(m, teams, section, catKey, true)).join('')}</div>
-    </div>`;
+    html+=`<div class="bracket-section"><div class="bracket-stage-title">${names[stage]}</div><div class="match-list">${byStage[stage].map(m=>renderMatchItem(m,teams,section,catKey,true)).join('')}</div></div>`;
   });
-  html += `</div></div>`;
-  return html;
+  return html+`</div></div>`;
 }
 
-/* ── KNOCKOUT GENERATION ─────────────────────────────── */
+/* ── KNOCKOUT GENERATION ─────────────────────────── */
 function genSumoKO(catKey) {
-  const cat = S.sumo[catKey];
-  const nGroups = [...new Set(cat.teams.map(t => t.group))].length;
-  const advancing = [];
-  for (let g = 0; g < nGroups; g++) {
-    const gt = cat.teams.filter(t => t.group === g);
-    const gm = cat.matches.filter(m => m.group === g);
-    const st = getStandings(gt, gm);
-    advancing.push(st[0]?.id || null, st[1]?.id || null);
+  const cat=S.sumo[catKey];
+  const nGroups=[...new Set(cat.teams.map(t=>t.group))].length;
+  const adv=[];
+  for(let g=0;g<nGroups;g++){
+    const gt=cat.teams.filter(t=>t.group===g), gm=cat.matches.filter(m=>m.group===g);
+    const st=getStandings(gt,gm); adv.push(st[0]?.id||null, st[1]?.id||null);
   }
-
-  const pfx = catKey;
-  const matches = [];
-
-  if (cat.koStage === 'r16') {
-    // 16강: 8 matches
-    for (let i = 0; i < 8; i++) {
-      matches.push({ id:`${pfx}_r16_${i}`, stage:'r16',
-        teamA: advancing[i*2] || null, teamB: advancing[i*2+1] || null,
-        result:null, arena:null, status:'pending' });
-    }
-    // 8강: 4 matches (TBD)
-    for (let i = 0; i < 4; i++) {
-      matches.push({ id:`${pfx}_qf_${i}`, stage:'qf',
-        teamA:null, teamB:null, result:null, arena:null, status:'pending' });
-    }
-    // 4강: 2 matches
-    for (let i = 0; i < 2; i++) {
-      matches.push({ id:`${pfx}_sf_${i}`, stage:'sf',
-        teamA:null, teamB:null, result:null, arena:null, status:'pending' });
-    }
+  const ms=[], pfx=catKey;
+  if(cat.koStage==='r16'){
+    for(let i=0;i<8;i++) ms.push({id:`${pfx}_r16_${i}`,stage:'r16',teamA:adv[i*2]||null,teamB:adv[i*2+1]||null,result:null,arena:null,status:'pending'});
+    for(let i=0;i<4;i++) ms.push({id:`${pfx}_qf_${i}`,stage:'qf',teamA:null,teamB:null,result:null,arena:null,status:'pending'});
+    for(let i=0;i<2;i++) ms.push({id:`${pfx}_sf_${i}`,stage:'sf',teamA:null,teamB:null,result:null,arena:null,status:'pending'});
   } else {
-    // 4강: 2 matches
-    matches.push({ id:`${pfx}_sf_0`, stage:'sf',
-      teamA: advancing[0]||null, teamB: advancing[3]||null,
-      result:null, arena:null, status:'pending' });
-    matches.push({ id:`${pfx}_sf_1`, stage:'sf',
-      teamA: advancing[1]||null, teamB: advancing[2]||null,
-      result:null, arena:null, status:'pending' });
+    ms.push({id:`${pfx}_sf_0`,stage:'sf',teamA:adv[0]||null,teamB:adv[3]||null,result:null,arena:null,status:'pending'});
+    ms.push({id:`${pfx}_sf_1`,stage:'sf',teamA:adv[1]||null,teamB:adv[2]||null,result:null,arena:null,status:'pending'});
   }
-  // 결승
-  matches.push({ id:`${pfx}_final_0`, stage:'final',
-    teamA:null, teamB:null, result:null, arena:null, status:'pending' });
-
-  cat.knockoutMatches = matches;
-  save();
-  renderSumo();
+  ms.push({id:`${pfx}_final_0`,stage:'final',teamA:null,teamB:null,result:null,arena:null,status:'pending'});
+  cat.knockoutMatches=ms; save(); renderSumo();
 }
 
 function genOthelloKO() {
-  const cat = S.othello;
-  const advancing = [];
-  for (let g = 0; g < 2; g++) {
-    const gp = cat.participants.filter(p => p.group === g);
-    const gm = cat.matches.filter(m => m.group === g);
-    const st = getStandings(gp, gm);
-    advancing.push(st[0]?.id || null, st[1]?.id || null);
+  const cat=S.othello, adv=[];
+  for(let g=0;g<2;g++){
+    const gp=cat.participants.filter(p=>p.group===g), gm=cat.matches.filter(m=>m.group===g);
+    const st=getStandings(gp,gm); adv.push(st[0]?.id||null, st[1]?.id||null);
   }
-  cat.knockoutMatches = [
-    { id:'OT_sf_0', stage:'sf', teamA:advancing[0]||null, teamB:advancing[3]||null, result:null, arena:'1', status:'pending' },
-    { id:'OT_sf_1', stage:'sf', teamA:advancing[1]||null, teamB:advancing[2]||null, result:null, arena:'1', status:'pending' },
-    { id:'OT_final_0', stage:'final', teamA:null, teamB:null, result:null, arena:'1', status:'pending' },
+  cat.knockoutMatches=[
+    {id:'OT_sf_0',stage:'sf',teamA:adv[0]||null,teamB:adv[3]||null,result:null,arena:'1',status:'pending'},
+    {id:'OT_sf_1',stage:'sf',teamA:adv[1]||null,teamB:adv[2]||null,result:null,arena:'1',status:'pending'},
+    {id:'OT_final_0',stage:'final',teamA:null,teamB:null,result:null,arena:'1',status:'pending'},
   ];
-  save();
-  renderOthello();
+  save(); renderOthello();
 }
 
-/* ── RENDER: LINE FOLLOW ─────────────────────────────── */
+/* ── RENDER: LINE FOLLOW ──────────────────────────── */
 function renderLineFollow() {
   const cat = S.lineFollow[lfTab];
   const ranking = getLfRanking(cat.participants);
+  const f = v => v!==null ? v : '-';
+  const ft = v => v!==null ? v+'초' : '-';
 
-  let html = `<div class="card">
-    <div class="card-hdr">
-      <div class="card-title">📊 기록 및 순위</div>
-      ${S.isAdmin ? `<span class="small muted">참가자 이름 클릭=수정</span>` : ''}
-    </div>
-    <div class="tbl-wrap"><table>
-      <thead><tr>
-        <th>순위</th>
-        <th>참가자</th>
-        <th>1차 점수</th><th>1차 보너스</th><th>1차 시간</th>
-        <th>2차 점수</th><th>2차 보너스</th><th>2차 시간</th>
-        <th style="background:#fff9e6">최고점수</th>
-        <th style="background:#fff9e6">최고보너스</th>
-        <th style="background:#fff9e6">최고시간</th>
-        <th style="background:#fff9e6">채택</th>
-        ${S.isAdmin ? '<th>기록 입력</th>' : ''}
-      </tr></thead>
-      <tbody>`;
+  // Desktop full table
+  let tableHtml = `<div class="tbl-wrap lf-table-wrap"><table>
+    <thead><tr>
+      <th>순위</th><th>참가자</th>
+      <th>1차 점수</th><th>1차 보너스</th><th>1차 시간</th>
+      <th>2차 점수</th><th>2차 보너스</th><th>2차 시간</th>
+      <th style="background:#fff9e6">최고합계</th>
+      <th style="background:#fff9e6">최고시간</th>
+      <th style="background:#fff9e6">채택</th>
+      ${S.isAdmin?'<th>입력</th>':''}
+    </tr></thead>
+    <tbody>`;
 
-  ranking.forEach((p, idx) => {
-    const rc = idx===0?'tr-1st':idx===1?'tr-2nd':idx===2?'tr-3rd':'';
-    const r1 = p.round1, r2 = p.round2;
-    const f = (v) => v !== null ? v : '-';
-    const ft = (v) => v !== null ? v + '초' : '-';
-    const nm = S.isAdmin
-      ? `<span class="editable" onclick="openName('lf','${lfTab}','${p.id}')">${p.name}</span>`
-      : p.name;
-    const best = p.hasBest ? p.best : null;
-    const rankIcon = idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'';
-    html += `<tr class="${rc}">
-      <td class="fw7">${rankIcon}${idx+1}</td>
-      <td class="fw7">${nm}</td>
+  ranking.forEach((p,idx) => {
+    const rc=idx===0?'tr-1st':idx===1?'tr-2nd':idx===2?'tr-3rd':'';
+    const ri=idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'';
+    const nm=S.isAdmin?`<span class="editable" onclick="openName('lf','${lfTab}','${p.id}')">${p.name}</span>`:p.name;
+    const r1=p.round1, r2=p.round2, best=p.hasBest?p.best:null;
+    tableHtml += `<tr class="${rc}">
+      <td class="fw7">${ri}${idx+1}</td><td class="fw7">${nm}</td>
       <td>${f(r1.score)}</td><td>${f(r1.bonus)}</td><td>${ft(r1.time)}</td>
       <td>${f(r2.score)}</td><td>${f(r2.bonus)}</td><td>${ft(r2.time)}</td>
-      <td style="background:#fff9e6" class="fw7">${best ? best.score : '-'}</td>
-      <td style="background:#fff9e6" class="fw7">${best ? best.bonus : '-'}</td>
-      <td style="background:#fff9e6" class="fw7">${best ? best.time+'초' : '-'}</td>
-      <td style="background:#fff9e6">${p.hasBest ? `<span class="badge ${p.bestRnd===1?'badge-done':'badge-ongoing'}">${p.bestRnd}차</span>` : '-'}</td>
-      ${S.isAdmin ? `<td><button class="btn btn-primary btn-xs" onclick="openLf('${lfTab}','${p.id}')">입력</button></td>` : ''}
+      <td style="background:#fff9e6" class="fw7">${best?best.score+best.bonus:'-'}</td>
+      <td style="background:#fff9e6" class="fw7">${best?best.time+'초':'-'}</td>
+      <td style="background:#fff9e6">${p.hasBest?`<span class="badge ${p.bestRnd===1?'badge-done':'badge-ongoing'}">${p.bestRnd}차</span>`:'-'}</td>
+      ${S.isAdmin?`<td><button class="btn btn-primary btn-xs" onclick="openLf('${lfTab}','${p.id}')">입력</button></td>`:''}
     </tr>`;
   });
+  tableHtml += `</tbody></table></div>`;
 
-  html += `</tbody></table></div></div>
-    <div class="info-box mt2">
-      <strong>순위 결정 기준:</strong> 1차·2차 경기 중 더 좋은 기록 채택 →
-      ① 점수+보너스 합계 높은 순 ② 동점 시 시간 짧은 순 (빠를수록 우리)
+  // Mobile cards
+  let cardsHtml = `<div class="lf-cards">`;
+  ranking.forEach((p, idx) => {
+    const cls=idx===0?'lfc-1st':idx===1?'lfc-2nd':idx===2?'lfc-3rd':'';
+    const ri=idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':`#${idx+1}`;
+    const r1=p.round1, r2=p.round2, best=p.hasBest?p.best:null;
+    const nm=S.isAdmin?`<span class="editable" onclick="openName('lf','${lfTab}','${p.id}')">${p.name}</span>`:p.name;
+    cardsHtml += `<div class="lf-card ${cls}">
+      <div class="lf-card-top">
+        <div>
+          <div class="lf-card-rank">${ri}</div>
+          <div class="lf-card-name">${nm}</div>
+        </div>
+        ${S.isAdmin?`<button class="btn btn-primary btn-sm" onclick="openLf('${lfTab}','${p.id}')">기록 입력</button>`:''}
+      </div>
+      <dl class="lf-card-grid">
+        <dt>1차 점수</dt><dd>${f(r1.score)}</dd>
+        <dt>1차 보너스</dt><dd>${f(r1.bonus)}</dd>
+        <dt>1차 시간</dt><dd>${ft(r1.time)}</dd>
+        <dt>2차 점수</dt><dd>${f(r2.score)}</dd>
+        <dt>2차 보너스</dt><dd>${f(r2.bonus)}</dd>
+        <dt>2차 시간</dt><dd>${ft(r2.time)}</dd>
+        <dt style="color:var(--navy)">최고 합계</dt><dd class="win fw7">${best?best.score+best.bonus+'점':'-'}</dd>
+        <dt style="color:var(--navy)">최고 시간</dt><dd class="win fw7">${best?best.time+'초':'-'}</dd>
+      </dl>
+      ${p.hasBest?`<div class="mt1"><span class="badge ${p.bestRnd===1?'badge-done':'badge-ongoing'}">${p.bestRnd}차 채택</span></div>`:''}
     </div>`;
+  });
+  cardsHtml += `</div>`;
 
-  document.getElementById('lfContent').innerHTML = html;
+  document.getElementById('lfContent').innerHTML = `
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">📊 기록 및 순위</div>
+        ${S.isAdmin?`<span class="small muted">이름 클릭=수정</span>`:''}
+      </div>
+      ${tableHtml}${cardsHtml}
+    </div>
+    <div class="info-box mt2">
+      <strong>순위 기준:</strong> 1·2차 중 좋은 기록 채택 → ① 점수+보너스 높은 순 ② 시간 짧은 순
+    </div>`;
 }
 
-/* ── RENDER: OTHELLO ─────────────────────────────────── */
+/* ── RENDER: OTHELLO ──────────────────────────────── */
 function renderOthello() {
   const cat = S.othello;
   let html = `<div class="g2 mb2">`;
 
   for (let g = 0; g < 2; g++) {
-    const gp = cat.participants.filter(p => p.group === g);
-    const gm = cat.matches.filter(m => m.group === g);
-    const standings = getStandings(gp, gm);
-    const done = gm.filter(m => m.status === 'done').length;
+    const gp=cat.participants.filter(p=>p.group===g), gm=cat.matches.filter(m=>m.group===g);
+    const standings=getStandings(gp,gm), done=gm.filter(m=>m.status==='done').length;
 
-    html += `<div class="card">
-      <div class="card-hdr">
-        <div class="card-title"><span class="gl-${GL[g]}">●</span> 그룹 ${GL[g]} <span class="small muted">${gp.length}명 · ${done}/${gm.length}경기</span></div>
-      </div>
-      <div class="tbl-wrap"><table>
-        <thead><tr>
-          <th>순위</th>
-          <th>참가자 ${S.isAdmin ? '<span class="small muted">(클릭=수정)</span>':''}</th>
-          <th>경기</th><th class="win">승</th><th class="draw-c">무</th><th class="lose">패</th><th>승점</th>
-        </tr></thead>
-        <tbody>${standings.map((s, idx) => {
-          const rc = idx===0?'tr-1st':idx===1?'tr-2nd':'';
-          const adv = idx < 2 ? `<span class="badge badge-adv">↑4강</span>` : '';
-          const nm = S.isAdmin
-            ? `<span class="editable" onclick="openName('othello','','${s.id}')">${s.name}</span>`
-            : s.name;
+    const desktopTable = `
+      <div class="tbl-wrap standings-desktop"><table>
+        <thead><tr><th>순위</th><th>참가자${S.isAdmin?' <span class="small muted">(클릭=수정)</span>':''}</th><th>경기</th><th class="win">승</th><th class="draw-c">무</th><th class="lose">패</th><th>승점</th></tr></thead>
+        <tbody>${standings.map((s,idx) => {
+          const rc=idx===0?'tr-1st':idx===1?'tr-2nd':'';
+          const adv=idx<2?`<span class="badge badge-adv">↑4강</span>`:'';
+          const nm=S.isAdmin?`<span class="editable" onclick="openName('othello','','${s.id}')">${s.name}</span>`:s.name;
           return `<tr class="${rc}"><td class="fw7">${idx+1}</td><td>${nm} ${adv}</td><td>${s.played}</td><td class="win fw7">${s.W}</td><td class="draw-c">${s.D}</td><td class="lose">${s.L}</td><td class="fw7">${s.pts}</td></tr>`;
         }).join('')}</tbody>
-      </table></div>
+      </table></div>`;
+
+    const mobileCards = `
+      <div class="standings-mobile">
+        ${standings.map((s,idx) => {
+          const cls=idx===0?'sc-1st':idx===1?'sc-2nd':'';
+          const rankIco=idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':`${idx+1}`;
+          const adv=idx<2?`<span class="badge badge-adv">↑4강</span>`:'';
+          const nm=S.isAdmin?`<span class="editable" onclick="openName('othello','','${s.id}')">${s.name}</span>`:s.name;
+          return `<div class="scard ${cls}">
+            <div class="scard-rank">${rankIco}</div>
+            <div class="scard-info">
+              <div class="scard-name">${nm} ${adv}</div>
+              <div class="scard-stats"><span class="win">승 ${s.W}</span><span class="draw-c">무 ${s.D}</span><span class="lose">패 ${s.L}</span><span class="muted">${s.played}경기</span></div>
+            </div>
+            <div class="scard-pts">${s.pts}점</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+
+    html += `<div class="card">
+      <div class="card-hdr"><div class="card-title"><span class="gl-${GL[g]}">●</span> 그룹 ${GL[g]} <span class="small muted">${gp.length}명·${done}/${gm.length}</span></div></div>
+      ${desktopTable}${mobileCards}
     </div>`;
   }
   html += `</div>`;
 
-  // Admin: knockout button
   if (S.isAdmin) {
-    const hasKo = (cat.knockoutMatches || []).length > 0;
-    if (!hasKo) {
-      html += `<button class="btn btn-primary mb2" onclick="genOthelloKO()">🏆 4강 브래킷 생성</button>`;
-    } else {
-      html += `<button class="btn btn-ghost btn-sm mb2" onclick="if(confirm('토너먼트를 초기화할까요?')){S.othello.knockoutMatches=[];save();renderOthello()}">토너먼트 초기화</button>`;
-    }
+    const hasKo=(cat.knockoutMatches||[]).length>0;
+    html += hasKo
+      ? `<button class="btn btn-ghost btn-sm mb2" onclick="if(confirm('초기화?')){S.othello.knockoutMatches=[];save();renderOthello()}">토너먼트 초기화</button>`
+      : `<button class="btn btn-primary mb2 btn-block" onclick="genOthelloKO()">🏆 4강 브래킷 생성</button>`;
   }
 
-  // Match list
   html += `<div class="card mb2">
-    <div class="card-hdr"><div class="card-title">📋 조별리그 경기 목록 (경기장 1개)</div></div>
+    <div class="card-hdr"><div class="card-title">📋 조별리그 경기 목록</div></div>
     <div class="card-body">`;
-  for (let g = 0; g < 2; g++) {
-    const gm = cat.matches.filter(m => m.group === g);
-    const done = gm.filter(m => m.status === 'done').length;
-    html += `<div class="mb2">
+  for (let g=0;g<2;g++) {
+    const gm=cat.matches.filter(m=>m.group===g), done=gm.filter(m=>m.status==='done').length;
+    html+=`<div class="mb2">
       <div class="flex ai-c gap1 mb1">
         <span class="fw7 small gl-${GL[g]}">그룹 ${GL[g]}</span>
-        <span class="muted small">${done}/${gm.length} 완료</span>
+        <span class="muted small">${done}/${gm.length}</span>
       </div>
-      <div class="match-list">${gm.map(m => renderMatchItem(m, cat.participants, 'othello', '', false)).join('')}</div>
+      <div class="match-list">${gm.map(m=>renderMatchItem(m,cat.participants,'othello','',false)).join('')}</div>
     </div>`;
   }
-  html += `</div></div>`;
+  html+=`</div></div>`;
 
-  if ((cat.knockoutMatches || []).length > 0) {
-    html += renderKOSection(cat, '', cat.participants, 'othello');
-  }
-
+  if ((cat.knockoutMatches||[]).length>0) html+=renderKOSection(cat,'',cat.participants,'othello');
   document.getElementById('othelloContent').innerHTML = html;
 }
 
-/* ── MATCH MODAL ─────────────────────────────────────── */
+/* ── MATCH MODAL ──────────────────────────────────── */
 function openMatch(section, catKey, matchId, ko=false) {
   if (!S.isAdmin) return;
-  editMatch = { section, catKey, matchId, ko };
-
+  editMatch = {section, catKey, matchId, ko};
   let match, teams;
-  if (section === 'sumo') {
-    const cat = S.sumo[catKey];
-    match = ko ? cat.knockoutMatches.find(m=>m.id===matchId) : cat.matches.find(m=>m.id===matchId);
-    teams = cat.teams;
+  if (section==='sumo') {
+    const cat=S.sumo[catKey];
+    match=ko?cat.knockoutMatches.find(m=>m.id===matchId):cat.matches.find(m=>m.id===matchId);
+    teams=cat.teams;
   } else {
-    const cat = S.othello;
-    match = ko ? cat.knockoutMatches.find(m=>m.id===matchId) : cat.matches.find(m=>m.id===matchId);
-    teams = cat.participants;
+    const cat=S.othello;
+    match=ko?cat.knockoutMatches.find(m=>m.id===matchId):cat.matches.find(m=>m.id===matchId);
+    teams=cat.participants;
   }
   if (!match) return;
-
-  const tA = teams.find(t=>t.id===match.teamA);
-  const tB = teams.find(t=>t.id===match.teamB);
-  const nA = tA?.name || match.teamA || 'TBD';
-  const nB = tB?.name || match.teamB || 'TBD';
-
-  document.getElementById('mTeamA').textContent = nA;
-  document.getElementById('mTeamB').textContent = nB;
-  document.getElementById('rLblA').textContent = nA + ' 승리';
-  document.getElementById('rLblB').textContent = nB + ' 승리';
-
-  // Arena options
-  const arenaEl = document.getElementById('mArena');
-  if (section === 'othello') {
-    arenaEl.innerHTML = '<option value="1">경기장 1</option>';
-    arenaEl.value = '1';
-    arenaEl.disabled = true;
+  const tA=teams.find(t=>t.id===match.teamA), tB=teams.find(t=>t.id===match.teamB);
+  const nA=tA?.name||match.teamA||'TBD', nB=tB?.name||match.teamB||'TBD';
+  document.getElementById('mTeamA').textContent=nA;
+  document.getElementById('mTeamB').textContent=nB;
+  document.getElementById('rLblA').textContent=nA+' 승리';
+  document.getElementById('rLblB').textContent=nB+' 승리';
+  const arenaEl=document.getElementById('mArena');
+  if (section==='othello') {
+    arenaEl.innerHTML='<option value="1">경기장 1</option>'; arenaEl.value='1'; arenaEl.disabled=true;
   } else {
-    arenaEl.disabled = false;
-    arenaEl.innerHTML = '<option value="">선택</option>' +
-      Array.from({length:6},(_,i)=>`<option value="${i+1}">경기장 ${i+1}</option>`).join('');
-    arenaEl.value = match.arena || '';
+    arenaEl.disabled=false;
+    arenaEl.innerHTML='<option value="">선택</option>'+Array.from({length:6},(_,i)=>`<option value="${i+1}">경기장 ${i+1}</option>`).join('');
+    arenaEl.value=match.arena||'';
   }
-  document.getElementById('mStatus').value = match.status || 'pending';
-
-  curResult = match.result || null;
-  updateResButtons();
+  document.getElementById('mStatus').value=match.status||'pending';
+  curResult=match.result||null; updateResButtons();
   document.getElementById('matchOverlay').classList.remove('hidden');
 }
 
-function selectResult(r) { curResult = r; updateResButtons(); }
-function updateResButtons() {
-  document.getElementById('rBtnA').className = 'res-btn' + (curResult==='A'?' sel-a':'');
-  document.getElementById('rBtnD').className = 'res-btn' + (curResult==='D'?' sel-d':'');
-  document.getElementById('rBtnB').className = 'res-btn' + (curResult==='B'?' sel-b':'');
+function selectResult(r){curResult=r;updateResButtons();}
+function updateResButtons(){
+  document.getElementById('rBtnA').className='res-btn'+(curResult==='A'?' sel-a':'');
+  document.getElementById('rBtnD').className='res-btn'+(curResult==='D'?' sel-d':'');
+  document.getElementById('rBtnB').className='res-btn'+(curResult==='B'?' sel-b':'');
 }
-function resetMatch() { curResult=null; updateResButtons(); document.getElementById('mStatus').value='pending'; document.getElementById('mArena').value=''; }
+function resetMatch(){curResult=null;updateResButtons();document.getElementById('mStatus').value='pending';document.getElementById('mArena').value='';}
 
 function saveMatch() {
   if (!editMatch) return;
-  const { section, catKey, matchId, ko } = editMatch;
+  const {section,catKey,matchId,ko}=editMatch;
   let match;
-  if (section === 'sumo') {
-    const cat = S.sumo[catKey];
-    match = ko ? cat.knockoutMatches.find(m=>m.id===matchId) : cat.matches.find(m=>m.id===matchId);
-  } else {
-    const cat = S.othello;
-    match = ko ? cat.knockoutMatches.find(m=>m.id===matchId) : cat.matches.find(m=>m.id===matchId);
-  }
+  if (section==='sumo'){const cat=S.sumo[catKey];match=ko?cat.knockoutMatches.find(m=>m.id===matchId):cat.matches.find(m=>m.id===matchId);}
+  else{const cat=S.othello;match=ko?cat.knockoutMatches.find(m=>m.id===matchId):cat.matches.find(m=>m.id===matchId);}
   if (!match) return;
-  match.result = curResult;
-  match.arena  = document.getElementById('mArena').value || null;
-  match.status = document.getElementById('mStatus').value;
-  save();
-  closeModal('matchOverlay');
-  renderCurrent();
+  match.result=curResult; match.arena=document.getElementById('mArena').value||null; match.status=document.getElementById('mStatus').value;
+  save(); closeModal('matchOverlay'); renderCurrent();
 }
 
-/* ── LINE FOLLOW MODAL ───────────────────────────────── */
+/* ── LF MODAL ─────────────────────────────────────── */
 function openLf(catKey, pid) {
   if (!S.isAdmin) return;
-  editLf = { catKey, pid };
-  const p = S.lineFollow[catKey].participants.find(p=>p.id===pid);
-  if (!p) return;
-  document.getElementById('lfPName').textContent = p.name;
-  document.getElementById('lf1s').value = p.round1.score ?? '';
-  document.getElementById('lf1b').value = p.round1.bonus ?? '';
-  document.getElementById('lf1t').value = p.round1.time  ?? '';
-  document.getElementById('lf2s').value = p.round2.score ?? '';
-  document.getElementById('lf2b').value = p.round2.bonus ?? '';
-  document.getElementById('lf2t').value = p.round2.time  ?? '';
+  editLf={catKey,pid};
+  const p=S.lineFollow[catKey].participants.find(p=>p.id===pid); if(!p)return;
+  document.getElementById('lfPName').textContent=p.name;
+  document.getElementById('lf1s').value=p.round1.score??''; document.getElementById('lf1b').value=p.round1.bonus??''; document.getElementById('lf1t').value=p.round1.time??'';
+  document.getElementById('lf2s').value=p.round2.score??''; document.getElementById('lf2b').value=p.round2.bonus??''; document.getElementById('lf2t').value=p.round2.time??'';
   document.getElementById('lfOverlay').classList.remove('hidden');
 }
-
 function saveLf() {
   if (!editLf) return;
-  const { catKey, pid } = editLf;
-  const p = S.lineFollow[catKey].participants.find(p=>p.id===pid);
-  if (!p) return;
-  const pn = (id) => { const v = document.getElementById(id).value; return v==='' ? null : parseFloat(v); };
-  p.round1 = { score:pn('lf1s'), bonus:pn('lf1b'), time:pn('lf1t') };
-  p.round2 = { score:pn('lf2s'), bonus:pn('lf2b'), time:pn('lf2t') };
-  save();
-  closeModal('lfOverlay');
-  renderCurrent();
+  const {catKey,pid}=editLf;
+  const p=S.lineFollow[catKey].participants.find(p=>p.id===pid); if(!p)return;
+  const pn=id=>{const v=document.getElementById(id).value;return v===''?null:parseFloat(v);};
+  p.round1={score:pn('lf1s'),bonus:pn('lf1b'),time:pn('lf1t')};
+  p.round2={score:pn('lf2s'),bonus:pn('lf2b'),time:pn('lf2t')};
+  save(); closeModal('lfOverlay'); renderCurrent();
 }
 
-/* ── NAME MODAL ──────────────────────────────────────── */
+/* ── NAME MODAL ───────────────────────────────────── */
 function openName(section, catKey, pid) {
   if (!S.isAdmin) return;
-  editName = { section, catKey, pid };
+  editName={section,catKey,pid};
   let ent;
-  if (section==='sumo')   ent = S.sumo[catKey].teams.find(t=>t.id===pid);
-  else if (section==='lf') ent = S.lineFollow[catKey].participants.find(p=>p.id===pid);
-  else                     ent = S.othello.participants.find(p=>p.id===pid);
-  document.getElementById('nameInput').value = ent?.name || '';
+  if(section==='sumo')ent=S.sumo[catKey].teams.find(t=>t.id===pid);
+  else if(section==='lf')ent=S.lineFollow[catKey].participants.find(p=>p.id===pid);
+  else ent=S.othello.participants.find(p=>p.id===pid);
+  document.getElementById('nameInput').value=ent?.name||'';
   document.getElementById('nameOverlay').classList.remove('hidden');
-  setTimeout(() => document.getElementById('nameInput').select(), 50);
+  setTimeout(()=>document.getElementById('nameInput').select(),50);
 }
-
 function saveName() {
   if (!editName) return;
-  const { section, catKey, pid } = editName;
-  const newName = document.getElementById('nameInput').value.trim();
-  if (!newName) return;
+  const {section,catKey,pid}=editName, n=document.getElementById('nameInput').value.trim(); if(!n)return;
   let ent;
-  if (section==='sumo')    ent = S.sumo[catKey].teams.find(t=>t.id===pid);
-  else if (section==='lf') ent = S.lineFollow[catKey].participants.find(p=>p.id===pid);
-  else                     ent = S.othello.participants.find(p=>p.id===pid);
-  if (ent) ent.name = newName;
-  save();
-  closeModal('nameOverlay');
-  renderCurrent();
+  if(section==='sumo')ent=S.sumo[catKey].teams.find(t=>t.id===pid);
+  else if(section==='lf')ent=S.lineFollow[catKey].participants.find(p=>p.id===pid);
+  else ent=S.othello.participants.find(p=>p.id===pid);
+  if(ent)ent.name=n; save(); closeModal('nameOverlay'); renderCurrent();
 }
 
-/* ── MODAL HELPERS ───────────────────────────────────── */
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+/* ── MODAL HELPERS ────────────────────────────────── */
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
 
-/* ── ADMIN ───────────────────────────────────────────── */
+/* ── ADMIN ────────────────────────────────────────── */
 function toggleAdmin() {
-  if (S.isAdmin) {
-    S.isAdmin = false; save(); updateAdminUI(); renderCurrent();
-  } else {
-    document.getElementById('pwInput').value = '';
-    document.getElementById('loginErr').style.display = 'none';
+  if (S.isAdmin){S.isAdmin=false;save();updateAdminUI();renderCurrent();}
+  else{
+    document.getElementById('pwInput').value='';
+    document.getElementById('loginErr').style.display='none';
     document.getElementById('loginOverlay').classList.remove('hidden');
-    setTimeout(() => document.getElementById('pwInput').focus(), 100);
+    setTimeout(()=>document.getElementById('pwInput').focus(),150);
   }
 }
-
 function doLogin() {
-  if (document.getElementById('pwInput').value === ADMIN_PW) {
-    S.isAdmin = true; save();
-    closeModal('loginOverlay');
-    updateAdminUI();
-    renderCurrent();
-  } else {
-    document.getElementById('loginErr').style.display = 'block';
-  }
+  if (document.getElementById('pwInput').value===ADMIN_PW){
+    S.isAdmin=true;save();closeModal('loginOverlay');updateAdminUI();renderCurrent();
+  } else { document.getElementById('loginErr').style.display='block'; }
 }
-
 function updateAdminUI() {
-  const a = S.isAdmin;
-  document.getElementById('adminBadge').style.display = a ? 'inline-flex' : 'none';
-  document.getElementById('adminBtn').textContent = a ? '관리자 로그아웃' : '관리자 로그인';
-  document.getElementById('resetBtn').style.display = a ? 'inline-block' : 'none';
+  const a=S.isAdmin;
+  document.getElementById('adminBadge').style.display=a?'inline-flex':'none';
+  document.getElementById('adminBtn').textContent=a?'로그아웃':'관리자 로그인';
+  document.getElementById('resetBtn').style.display=a?'inline-block':'none';
 }
-
 function resetAll() {
-  if (!confirm('⚠️ 모든 경기 데이터를 초기화합니까?\n이 작업은 되돌릴 수 없습니다!')) return;
-  const wasAdmin = S.isAdmin;
-  S = mkDefault();
-  S.isAdmin = wasAdmin;
-  save();
-  renderAll();
+  if(!confirm('⚠️ 모든 데이터를 초기화합니까?\n되돌릴 수 없습니다!'))return;
+  const wasAdmin=S.isAdmin; S=mkDefault(); S.isAdmin=wasAdmin; save(); renderAll();
 }
 
-/* ── NAVIGATION ──────────────────────────────────────── */
+/* ── NAVIGATION ───────────────────────────────────── */
 function showView(v) {
-  curView = v;
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  curView=v;
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById(`view-${v}`).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', ['dashboard','sumo','linefollow','othello'][i] === v);
-  });
+
+  // Top nav
+  const views=['dashboard','sumo','linefollow','othello'];
+  document.querySelectorAll('.nav-btn').forEach((btn,i)=>btn.classList.toggle('active',views[i]===v));
+  // Bottom nav
+  document.querySelectorAll('.bnav-btn').forEach((btn,i)=>btn.classList.toggle('active',views[i]===v));
+
+  // Scroll to top
+  window.scrollTo({top:0, behavior:'smooth'});
   renderCurrent();
 }
 
 function setSumoTab(tab) {
-  sumoTab = tab;
-  document.querySelectorAll('#view-sumo .tab-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', ['juniorSpike','seniorSpike','juniorOpen','seniorOpen'][i] === tab);
-  });
+  sumoTab=tab;
+  document.querySelectorAll('#view-sumo .tab-btn').forEach((btn,i)=>btn.classList.toggle('active',['juniorSpike','seniorSpike','juniorOpen','seniorOpen'][i]===tab));
   renderSumo();
 }
-
 function setLfTab(tab) {
-  lfTab = tab;
-  document.querySelectorAll('#view-linefollow .tab-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', ['junior','senior'][i] === tab);
-  });
+  lfTab=tab;
+  document.querySelectorAll('#view-linefollow .tab-btn').forEach((btn,i)=>btn.classList.toggle('active',['junior','senior'][i]===tab));
   renderLineFollow();
 }
 
 function renderCurrent() {
-  if (curView==='dashboard') renderDashboard();
-  else if (curView==='sumo') renderSumo();
-  else if (curView==='linefollow') renderLineFollow();
-  else if (curView==='othello') renderOthello();
+  if(curView==='dashboard')renderDashboard();
+  else if(curView==='sumo')renderSumo();
+  else if(curView==='linefollow')renderLineFollow();
+  else if(curView==='othello')renderOthello();
 }
-
 function renderAll() {
   renderDashboard();
-  if (curView==='sumo') renderSumo();
-  else if (curView==='linefollow') renderLineFollow();
-  else if (curView==='othello') renderOthello();
+  if(curView==='sumo')renderSumo();
+  else if(curView==='linefollow')renderLineFollow();
+  else if(curView==='othello')renderOthello();
 }
 
-/* ── INIT ────────────────────────────────────────────── */
+/* ── INIT ─────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   load();
   updateAdminUI();
   renderDashboard();
-  // Close modals on overlay click
+
   ['loginOverlay','matchOverlay','lfOverlay','nameOverlay'].forEach(id => {
-    document.getElementById(id).addEventListener('click', function(e) {
-      if (e.target === this) closeModal(id);
+    document.getElementById(id).addEventListener('click', function(e){
+      if(e.target===this) closeModal(id);
     });
   });
-  // Auto-refresh timestamp
+
   setInterval(() => {
-    const el = document.getElementById('updatedAt');
-    if (el && curView==='dashboard') el.textContent = '업데이트: ' + new Date().toLocaleTimeString('ko-KR');
+    const el=document.getElementById('updatedAt');
+    if(el&&curView==='dashboard') el.textContent='업데이트: '+new Date().toLocaleTimeString('ko-KR');
   }, 60000);
 });
 </script>
