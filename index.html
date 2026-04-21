@@ -725,19 +725,34 @@ function load() {
   S = mkDefault();
 }
 
-/* 기존 저장 데이터에 3위 결정전 슬롯 자동 추가 (마이그레이션) */
+/* 기존 저장 데이터 마이그레이션 */
 function migrateState() {
+  // ① result는 있는데 status가 'pending'인 경기 → 'done'으로 자동 수정
+  const fixStatus = matches => {
+    if (!matches) return;
+    matches.forEach(m => { if (m.result && m.status === 'pending') m.status = 'done'; });
+  };
+  Object.values(S.sumo).forEach(cat => { fixStatus(cat.matches); fixStatus(cat.knockoutMatches); });
+  fixStatus(S.othello.matches);
+  fixStatus(S.othello.knockoutMatches);
+
+  // ② 기존 토너먼트에 3위 결정전 슬롯 자동 추가
   const addThird = (ko, pfx, arena) => {
     if (!ko || !ko.length) return;
-    if (ko.some(m => m.stage === '3rd')) return;       // 이미 있음
-    if (!ko.some(m => m.stage === 'sf')) return;       // 4강 없으면 불필요
+    if (ko.some(m => m.stage === '3rd')) return;
+    if (!ko.some(m => m.stage === 'sf')) return;
     const idx = ko.findIndex(m => m.stage === 'final');
     const slot = {id:`${pfx}_3rd_0`, stage:'3rd', teamA:null, teamB:null, result:null, arena, status:'pending'};
     if (idx >= 0) ko.splice(idx, 0, slot); else ko.push(slot);
   };
   Object.entries(S.sumo).forEach(([k, cat]) => addThird(cat.knockoutMatches, k, null));
   addThird(S.othello.knockoutMatches, 'OT', '1');
-  save(); // 마이그레이션 결과 즉시 저장
+
+  // ③ 마이그레이션 후 승자 전파 재실행
+  Object.entries(S.sumo).forEach(([k, cat]) => { if ((cat.knockoutMatches||[]).length) propagateKOWinners('sumo', k); });
+  if ((S.othello.knockoutMatches||[]).length) propagateKOWinners('othello', '');
+
+  save();
 }
 
 /* ── CALCULATIONS ─────────────────────────────────── */
