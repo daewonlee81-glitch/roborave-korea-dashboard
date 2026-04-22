@@ -819,24 +819,25 @@ function initFirebase() {
       const d = snap.val();
 
       if (!d) {
-        // Firebase에 데이터 없음 → 로컬 데이터를 Firebase에 업로드
+        // Firebase에 데이터 없음 → 로컬 데이터 업로드
         const payload = JSON.parse(JSON.stringify(S));
         delete payload.isAdmin;
         lastSaveStr = JSON.stringify(payload);
         fbDb.ref(FB_PATH).set(payload).catch(err => {
           console.warn('초기 업로드 실패:', err.message);
         });
+        updateAdminUI(); // ← 버튼 표시 갱신
         return;
       }
 
       // 내가 방금 저장한 데이터면 재렌더 스킵
       if (JSON.stringify(d) === lastSaveStr) return;
 
-      // 다른 기기에서 온 데이터 → 화면 업데이트
+      // 다른 기기에서 온 데이터 → Firebase null 복원 후 화면 업데이트
       const wasAdmin = S?.isAdmin || false;
-      S = d;
+      S = restoreNulls(d);  // Firebase가 제거한 null 값 복원
       S.isAdmin = wasAdmin;
-      migrateLocal();   // Firebase에 다시 쓰지 않는 버전
+      migrateLocal();
       updateAdminUI();
       renderAll();
 
@@ -864,6 +865,43 @@ function setSyncBadge(state) {
     el.style.background = 'rgba(230,57,70,.3)';
     el.style.color = '#fff';
   }
+}
+
+/* ── FIREBASE NULL 복원 ────────────────────────────── */
+// Firebase는 null 값을 자동으로 제거함 → 받은 후 복원 필수
+function restoreNulls(d) {
+  if (!d) return d;
+  const n = v => (v === undefined ? null : v);
+
+  // LineFollow participants: round1/round2 복원
+  if (d.lineFollow) {
+    Object.values(d.lineFollow).forEach(cat => {
+      (cat.participants || []).forEach(p => {
+        p.round1 = p.round1 || {};
+        p.round1.score = n(p.round1.score);
+        p.round1.bonus = n(p.round1.bonus);
+        p.round1.time  = n(p.round1.time);
+        p.round2 = p.round2 || {};
+        p.round2.score = n(p.round2.score);
+        p.round2.bonus = n(p.round2.bonus);
+        p.round2.time  = n(p.round2.time);
+      });
+    });
+  }
+
+  // Sumo / Othello match 필드 복원
+  const normM = ms => (ms || []).forEach(m => {
+    m.result = n(m.result);
+    m.arena  = n(m.arena);
+    m.teamA  = n(m.teamA);
+    m.teamB  = n(m.teamB);
+  });
+  if (d.sumo) Object.values(d.sumo).forEach(cat => {
+    normM(cat.matches); normM(cat.knockoutMatches);
+  });
+  if (d.othello) { normM(d.othello.matches); normM(d.othello.knockoutMatches); }
+
+  return d;
 }
 
 /* ── 데이터 마이그레이션 ────────────────────────────── */
