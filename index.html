@@ -683,7 +683,7 @@ const GL = ['A','B','C','D','E','F','G','H'];
 const FB_CONFIG = {
   apiKey:            "AIzaSyCSMdkb391bJCIxGcr6JZuiDDzSlJlnBWM",
   authDomain:        "roborave-korea.firebaseapp.com",
-  databaseURL:       "https://roborave-korea-default-rtdb.firebaseio.com",
+  databaseURL:       "https://roborave-korea-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId:         "roborave-korea",
   storageBucket:     "roborave-korea.firebasestorage.app",
   messagingSenderId: "589408311648",
@@ -766,13 +766,16 @@ function save() {
   try { localStorage.setItem('rrk_state', JSON.stringify(S)); } catch(e) {}
   // Firebase가 연결되어 있으면 온라인에도 저장
   if (fbDb) {
-    const payload = JSON.parse(JSON.stringify(S)); // 깊은 복사
-    delete payload.isAdmin;                         // 관리자 상태는 서버에 저장 안 함
-    const str = JSON.stringify(payload);
-    lastSaveStr = str;
+    const payload = JSON.parse(JSON.stringify(S));
+    delete payload.isAdmin;
+    lastSaveStr = JSON.stringify(payload);
     fbDb.ref(FB_PATH).set(payload)
-      .then(() => setSyncBadge('online'))
-      .catch(() => setSyncBadge('error'));
+      .then(() => { /* .info/connected 가 상태를 관리 */ })
+      .catch(err => {
+        console.error('Firebase 저장 오류:', err.message);
+        setSyncBadge('error');
+        alert('⚠️ Firebase 저장 실패: ' + err.message + '\n\n콘솔(F12)에서 오류를 확인하고\nFirebase 보안 규칙 또는 databaseURL을 점검해주세요.');
+      });
   }
 }
 
@@ -787,27 +790,33 @@ function load() {
 
 /* ── FIREBASE 초기화 ───────────────────────────────── */
 function initFirebase() {
-  if (!FB_CONFIG.databaseURL || !FB_CONFIG.apiKey) return; // 설정 안 됨
+  if (!FB_CONFIG.databaseURL || !FB_CONFIG.apiKey) return;
   try {
     firebase.initializeApp(FB_CONFIG);
     fbDb = firebase.database();
 
-    // 실시간 리스너: 데이터 변경 시 모든 기기에서 자동 업데이트
+    // ① 실제 DB 연결 상태 감지 (.info/connected 는 Firebase 공식 방법)
+    fbDb.ref('.info/connected').on('value', snap => {
+      setSyncBadge(snap.val() ? 'online' : 'offline');
+    });
+
+    // ② 데이터 변경 실시간 리스너
     fbDb.ref(FB_PATH).on('value', snap => {
       const d = snap.val();
       if (!d) return;
-      const str = JSON.stringify(d);
-      if (str === lastSaveStr) return; // 내가 방금 저장한 것이면 무시
+      // 내가 방금 저장한 데이터면 재렌더 생략
+      if (JSON.stringify(d) === lastSaveStr) return;
       const wasAdmin = S?.isAdmin || false;
       S = d;
-      S.isAdmin = wasAdmin;   // 관리자 상태는 기기별로 유지
+      S.isAdmin = wasAdmin;
       migrateState();
       updateAdminUI();
       renderAll();
-      setSyncBadge('online');
-    }, () => setSyncBadge('error'));
+    }, err => {
+      console.error('Firebase 읽기 오류:', err.message);
+      setSyncBadge('error');
+    });
 
-    setSyncBadge('online');
   } catch(e) {
     console.warn('Firebase 초기화 실패:', e);
     setSyncBadge('error');
