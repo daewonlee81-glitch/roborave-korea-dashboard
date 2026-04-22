@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a3a6b">
 <title>RoboRave Korea Open</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 /* ── VARIABLES ───────────────────────────────────────── */
 :root {
@@ -545,6 +548,7 @@ tbody tr:hover{background:var(--g100)}
     </div>
   </div>
   <div class="hdr-actions">
+    <span id="syncBadge" style="display:none;padding:.18rem .55rem;border-radius:20px;font-size:.68rem;font-weight:800;white-space:nowrap"></span>
     <span class="badge-admin" id="adminBadge" style="display:none">👑 관리자</span>
     <button class="btn-hdr danger" id="resetBtn" style="display:none" onclick="resetAll()">🗑 초기화</button>
     <button class="btn-hdr" id="adminBtn" onclick="toggleAdmin()">관리자 로그인</button>
@@ -670,6 +674,27 @@ tbody tr:hover{background:var(--g100)}
 const ADMIN_PW = 'roborave2026';
 const GL = ['A','B','C','D','E','F','G','H'];
 
+/* ══════════════════════════════════════════════════════
+   FIREBASE 온라인 동기화 설정
+   Firebase 콘솔(https://console.firebase.google.com)에서
+   프로젝트 생성 후 아래 값을 채워넣으세요.
+   비워두면 기기 내 저장(localStorage)으로만 동작합니다.
+══════════════════════════════════════════════════════ */
+const FB_CONFIG = {
+  apiKey:            "AIzaSyCSMdkb391bJCIxGcr6JZuiDDzSlJlnBWM",
+  authDomain:        "roborave-korea.firebaseapp.com",
+  databaseURL:       "https://roborave-korea-default-rtdb.firebaseio.com",
+  projectId:         "roborave-korea",
+  storageBucket:     "roborave-korea.firebasestorage.app",
+  messagingSenderId: "589408311648",
+  appId:             "1:589408311648:web:a46b75148b19c70476a605",
+  measurementId:     "G-1N5ZX7W3DX",
+};
+const FB_PATH = 'rrk_data';   // Firebase 내 저장 경로 (변경 불필요)
+
+let fbDb = null;
+let lastSaveStr = '';   // 자신이 저장한 데이터 해시 (리스너 루프 방지)
+
 let S;
 let curView = 'dashboard';
 let sumoTab = 'juniorSpike';
@@ -736,10 +761,73 @@ function mkOthello(count) {
 }
 
 /* ── PERSISTENCE ──────────────────────────────────── */
-function save() { try { localStorage.setItem('rrk_state', JSON.stringify(S)); } catch(e) {} }
+function save() {
+  // 항상 로컬에도 저장 (오프라인 대비)
+  try { localStorage.setItem('rrk_state', JSON.stringify(S)); } catch(e) {}
+  // Firebase가 연결되어 있으면 온라인에도 저장
+  if (fbDb) {
+    const payload = JSON.parse(JSON.stringify(S)); // 깊은 복사
+    delete payload.isAdmin;                         // 관리자 상태는 서버에 저장 안 함
+    const str = JSON.stringify(payload);
+    lastSaveStr = str;
+    fbDb.ref(FB_PATH).set(payload)
+      .then(() => setSyncBadge('online'))
+      .catch(() => setSyncBadge('error'));
+  }
+}
+
 function load() {
-  try { const r = localStorage.getItem('rrk_state'); if (r) { S = JSON.parse(r); migrateState(); return; } } catch(e) {}
+  // 로컬 데이터로 즉시 로드 (Firebase 응답 전에도 화면 표시)
+  try {
+    const r = localStorage.getItem('rrk_state');
+    if (r) { S = JSON.parse(r); migrateState(); return; }
+  } catch(e) {}
   S = mkDefault();
+}
+
+/* ── FIREBASE 초기화 ───────────────────────────────── */
+function initFirebase() {
+  if (!FB_CONFIG.databaseURL || !FB_CONFIG.apiKey) return; // 설정 안 됨
+  try {
+    firebase.initializeApp(FB_CONFIG);
+    fbDb = firebase.database();
+
+    // 실시간 리스너: 데이터 변경 시 모든 기기에서 자동 업데이트
+    fbDb.ref(FB_PATH).on('value', snap => {
+      const d = snap.val();
+      if (!d) return;
+      const str = JSON.stringify(d);
+      if (str === lastSaveStr) return; // 내가 방금 저장한 것이면 무시
+      const wasAdmin = S?.isAdmin || false;
+      S = d;
+      S.isAdmin = wasAdmin;   // 관리자 상태는 기기별로 유지
+      migrateState();
+      updateAdminUI();
+      renderAll();
+      setSyncBadge('online');
+    }, () => setSyncBadge('error'));
+
+    setSyncBadge('online');
+  } catch(e) {
+    console.warn('Firebase 초기화 실패:', e);
+    setSyncBadge('error');
+  }
+}
+
+function setSyncBadge(state) {
+  const el = document.getElementById('syncBadge');
+  if (!el) return;
+  if (!fbDb) { el.style.display = 'none'; return; }
+  el.style.display = 'inline-flex';
+  if (state === 'online') {
+    el.textContent = '🟢 온라인';
+    el.style.background = 'rgba(6,200,126,.25)';
+    el.style.color = '#fff';
+  } else {
+    el.textContent = '🔴 오프라인';
+    el.style.background = 'rgba(230,57,70,.3)';
+    el.style.color = '#fff';
+  }
 }
 
 /* 기존 저장 데이터 마이그레이션 */
@@ -1494,6 +1582,7 @@ document.addEventListener('DOMContentLoaded', () => {
   load();
   updateAdminUI();
   renderDashboard();
+  initFirebase(); // Firebase 온라인 동기화 시작
 
   ['loginOverlay','matchOverlay','lfOverlay','nameOverlay'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e){
