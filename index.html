@@ -549,6 +549,7 @@ tbody tr:hover{background:var(--g100)}
   </div>
   <div class="hdr-actions">
     <span id="syncBadge" style="display:none;padding:.18rem .55rem;border-radius:20px;font-size:.68rem;font-weight:800;white-space:nowrap"></span>
+    <button class="btn-hdr" id="pushBtn" style="display:none" onclick="pushToFirebase()">☁️ 업로드</button>
     <span class="badge-admin" id="adminBadge" style="display:none">👑 관리자</span>
     <button class="btn-hdr danger" id="resetBtn" style="display:none" onclick="resetAll()">🗑 초기화</button>
     <button class="btn-hdr" id="adminBtn" onclick="toggleAdmin()">관리자 로그인</button>
@@ -761,29 +762,42 @@ function mkOthello(count) {
 }
 
 /* ── PERSISTENCE ──────────────────────────────────── */
-function save() {
-  // 항상 로컬에도 저장 (오프라인 대비)
+
+// localStorage 전용 저장 (Firebase 루프 방지용)
+function saveLocal() {
   try { localStorage.setItem('rrk_state', JSON.stringify(S)); } catch(e) {}
-  // Firebase가 연결되어 있으면 온라인에도 저장
-  if (fbDb) {
-    const payload = JSON.parse(JSON.stringify(S));
-    delete payload.isAdmin;
-    lastSaveStr = JSON.stringify(payload);
-    fbDb.ref(FB_PATH).set(payload)
-      .then(() => { /* .info/connected 가 상태를 관리 */ })
-      .catch(err => {
-        console.error('Firebase 저장 오류:', err.message);
-        setSyncBadge('error');
-        alert('⚠️ Firebase 저장 실패: ' + err.message + '\n\n콘솔(F12)에서 오류를 확인하고\nFirebase 보안 규칙 또는 databaseURL을 점검해주세요.');
-      });
-  }
+}
+
+// Firebase + localStorage 동시 저장 (관리자가 결과 입력할 때만 호출)
+function save() {
+  saveLocal();
+  if (!fbDb) return;
+  const payload = JSON.parse(JSON.stringify(S));
+  delete payload.isAdmin;
+  lastSaveStr = JSON.stringify(payload);
+  fbDb.ref(FB_PATH).set(payload).catch(err => {
+    console.error('Firebase 저장 오류:', err.message);
+    setSyncBadge('error');
+    alert('⚠️ Firebase 저장 실패\n\n' + err.message +
+      '\n\nFirebase 콘솔 → Realtime Database → 규칙 탭에서\n".read":true, ".write":true 로 설정하고 게시해 주세요.');
+  });
+}
+
+// Firebase에 로컬 데이터 강제 업로드 (관리자 전용)
+function pushToFirebase() {
+  if (!fbDb) { alert('Firebase가 연결되어 있지 않습니다.'); return; }
+  const payload = JSON.parse(JSON.stringify(S));
+  delete payload.isAdmin;
+  lastSaveStr = JSON.stringify(payload);
+  fbDb.ref(FB_PATH).set(payload)
+    .then(() => alert('✅ Firebase 업로드 완료! 다른 기기에서 새로고침하면 반영됩니다.'))
+    .catch(err => alert('❌ 업로드 실패: ' + err.message));
 }
 
 function load() {
-  // 로컬 데이터로 즉시 로드 (Firebase 응답 전에도 화면 표시)
   try {
     const r = localStorage.getItem('rrk_state');
-    if (r) { S = JSON.parse(r); migrateState(); return; }
+    if (r) { S = JSON.parse(r); migrateLocal(); return; }
   } catch(e) {}
   S = mkDefault();
 }
@@ -795,23 +809,37 @@ function initFirebase() {
     firebase.initializeApp(FB_CONFIG);
     fbDb = firebase.database();
 
-    // ① 실제 DB 연결 상태 감지 (.info/connected 는 Firebase 공식 방법)
+    // 실제 연결 상태 감지
     fbDb.ref('.info/connected').on('value', snap => {
       setSyncBadge(snap.val() ? 'online' : 'offline');
     });
 
-    // ② 데이터 변경 실시간 리스너
+    // 실시간 데이터 리스너
     fbDb.ref(FB_PATH).on('value', snap => {
       const d = snap.val();
-      if (!d) return;
-      // 내가 방금 저장한 데이터면 재렌더 생략
+
+      if (!d) {
+        // Firebase에 데이터 없음 → 로컬 데이터를 Firebase에 업로드
+        const payload = JSON.parse(JSON.stringify(S));
+        delete payload.isAdmin;
+        lastSaveStr = JSON.stringify(payload);
+        fbDb.ref(FB_PATH).set(payload).catch(err => {
+          console.warn('초기 업로드 실패:', err.message);
+        });
+        return;
+      }
+
+      // 내가 방금 저장한 데이터면 재렌더 스킵
       if (JSON.stringify(d) === lastSaveStr) return;
+
+      // 다른 기기에서 온 데이터 → 화면 업데이트
       const wasAdmin = S?.isAdmin || false;
       S = d;
       S.isAdmin = wasAdmin;
-      migrateState();
+      migrateLocal();   // Firebase에 다시 쓰지 않는 버전
       updateAdminUI();
       renderAll();
+
     }, err => {
       console.error('Firebase 읽기 오류:', err.message);
       setSyncBadge('error');
@@ -825,8 +853,7 @@ function initFirebase() {
 
 function setSyncBadge(state) {
   const el = document.getElementById('syncBadge');
-  if (!el) return;
-  if (!fbDb) { el.style.display = 'none'; return; }
+  if (!el || !fbDb) { if(el) el.style.display='none'; return; }
   el.style.display = 'inline-flex';
   if (state === 'online') {
     el.textContent = '🟢 온라인';
@@ -839,34 +866,36 @@ function setSyncBadge(state) {
   }
 }
 
-/* 기존 저장 데이터 마이그레이션 */
+/* ── 데이터 마이그레이션 ────────────────────────────── */
+// saveLocal만 호출 (Firebase에 다시 쓰지 않음 → 루프 방지)
+function migrateLocal() {
+  _migrate();
+  saveLocal();
+}
+// save()까지 호출 (로컬에서 최초 로드 시)
 function migrateState() {
-  // ① result는 있는데 status가 'pending'인 경기 → 'done'으로 자동 수정
-  const fixStatus = matches => {
-    if (!matches) return;
-    matches.forEach(m => { if (m.result && m.status === 'pending') m.status = 'done'; });
-  };
-  Object.values(S.sumo).forEach(cat => { fixStatus(cat.matches); fixStatus(cat.knockoutMatches); });
-  fixStatus(S.othello.matches);
-  fixStatus(S.othello.knockoutMatches);
-
-  // ② 기존 토너먼트에 3위 결정전 슬롯 자동 추가
-  const addThird = (ko, pfx, arena) => {
-    if (!ko || !ko.length) return;
-    if (ko.some(m => m.stage === '3rd')) return;
-    if (!ko.some(m => m.stage === 'sf')) return;
-    const idx = ko.findIndex(m => m.stage === 'final');
-    const slot = {id:`${pfx}_3rd_0`, stage:'3rd', teamA:null, teamB:null, result:null, arena, status:'pending'};
-    if (idx >= 0) ko.splice(idx, 0, slot); else ko.push(slot);
-  };
-  Object.entries(S.sumo).forEach(([k, cat]) => addThird(cat.knockoutMatches, k, null));
-  addThird(S.othello.knockoutMatches, 'OT', '1');
-
-  // ③ 마이그레이션 후 승자 전파 재실행
-  Object.entries(S.sumo).forEach(([k, cat]) => { if ((cat.knockoutMatches||[]).length) propagateKOWinners('sumo', k); });
-  if ((S.othello.knockoutMatches||[]).length) propagateKOWinners('othello', '');
-
+  _migrate();
   save();
+}
+function _migrate() {
+  // ① result 있는데 status pending → done 자동 수정
+  const fixStatus = ms => { if(!ms)return; ms.forEach(m=>{ if(m.result&&m.status==='pending')m.status='done'; }); };
+  Object.values(S.sumo).forEach(cat => { fixStatus(cat.matches); fixStatus(cat.knockoutMatches); });
+  fixStatus(S.othello.matches); fixStatus(S.othello.knockoutMatches);
+
+  // ② 3위 결정전 슬롯 자동 추가
+  const addThird = (ko, pfx, arena) => {
+    if (!ko||!ko.length||ko.some(m=>m.stage==='3rd')||!ko.some(m=>m.stage==='sf')) return;
+    const idx = ko.findIndex(m=>m.stage==='final');
+    const slot = {id:`${pfx}_3rd_0`,stage:'3rd',teamA:null,teamB:null,result:null,arena,status:'pending'};
+    if(idx>=0) ko.splice(idx,0,slot); else ko.push(slot);
+  };
+  Object.entries(S.sumo).forEach(([k,cat])=>addThird(cat.knockoutMatches,k,null));
+  addThird(S.othello.knockoutMatches,'OT','1');
+
+  // ③ 승자 전파
+  Object.entries(S.sumo).forEach(([k,cat])=>{ if((cat.knockoutMatches||[]).length) propagateKOWinners('sumo',k); });
+  if((S.othello.knockoutMatches||[]).length) propagateKOWinners('othello','');
 }
 
 /* ── CALCULATIONS ─────────────────────────────────── */
@@ -1539,6 +1568,8 @@ function updateAdminUI() {
   document.getElementById('adminBadge').style.display=a?'inline-flex':'none';
   document.getElementById('adminBtn').textContent=a?'로그아웃':'관리자 로그인';
   document.getElementById('resetBtn').style.display=a?'inline-block':'none';
+  const pb=document.getElementById('pushBtn');
+  if(pb) pb.style.display=(a&&fbDb)?'inline-block':'none';
 }
 function resetAll() {
   if(!confirm('⚠️ 모든 데이터를 초기화합니까?\n되돌릴 수 없습니다!'))return;
