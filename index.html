@@ -797,7 +797,7 @@ function pushToFirebase() {
 function load() {
   try {
     const r = localStorage.getItem('rrk_state');
-    if (r) { S = JSON.parse(r); migrateLocal(); return; }
+    if (r) { S = restoreNulls(JSON.parse(r)); migrateLocal(); return; }
   } catch(e) {}
   S = mkDefault();
 }
@@ -952,19 +952,21 @@ function getStandings(teams, matches) {
 
 function getLfRanking(participants) {
   return [...participants].map(p => {
-    const r1=p.round1, r2=p.round2, has1=r1.score!==null, has2=r2.score!==null;
+    const r1=p.round1||{score:null,bonus:null,time:null};
+    const r2=p.round2||{score:null,bonus:null,time:null};
+    const has1=r1.score!=null, has2=r2.score!=null;
     let best=null, bestRnd=0;
     if (has1 && has2) {
-      const t1=r1.score+r1.bonus, t2=r2.score+r2.bonus;
-      if (t1>t2||(t1===t2&&r1.time<=r2.time)){best=r1;bestRnd=1;}else{best=r2;bestRnd=2;}
+      const t1=(r1.score||0)+(r1.bonus||0), t2=(r2.score||0)+(r2.bonus||0);
+      if (t1>t2||(t1===t2&&(r1.time||0)<=(r2.time||0))){best=r1;bestRnd=1;}else{best=r2;bestRnd=2;}
     } else if (has1){best=r1;bestRnd=1;} else if (has2){best=r2;bestRnd=2;}
-    return {...p, best, bestRnd, hasBest:!!best};
+    return {...p, round1:r1, round2:r2, best, bestRnd, hasBest:!!best};
   }).sort((a,b) => {
     if (!a.hasBest && !b.hasBest) return 0;
     if (!a.hasBest) return 1; if (!b.hasBest) return -1;
-    const at=a.best.score+a.best.bonus, bt=b.best.score+b.best.bonus;
+    const at=(a.best.score||0)+(a.best.bonus||0), bt=(b.best.score||0)+(b.best.bonus||0);
     if (bt!==at) return bt-at;
-    return a.best.time - b.best.time;
+    return (a.best.time||0) - (b.best.time||0);
   });
 }
 
@@ -992,9 +994,9 @@ function stageLabel(cat) {
 }
 
 function lfStageLabel(cat) {
-  const all=cat.participants, n=all.length;
-  const e1=all.filter(p=>p.round1.score!==null).length;
-  const e2=all.filter(p=>p.round2.score!==null).length;
+  const all=cat.participants||[], n=all.length;
+  const e1=all.filter(p=>p.round1?.score!=null).length;
+  const e2=all.filter(p=>p.round2?.score!=null).length;
   if (!e1&&!e2) return '대기중';
   if (e1===n&&e2===n) return '✅ 완료';
   return `진행중 (1차:${e1}/${n} 2차:${e2}/${n})`;
@@ -1044,49 +1046,58 @@ function renderDashboard() {
     {sport:'⚫ OTHELLO', cat:'-', teams:11, getData:()=>S.othello},
   ];
 
-  document.getElementById('summaryTbody').innerHTML = rows.map(row => {
-    let total, done, stage;
-    if (row.isLf) {
-      const all=row.getData().participants;
-      total=all.length*2;
-      done=all.filter(p=>p.round1.score!==null).length+all.filter(p=>p.round2.score!==null).length;
-      stage=lfStageLabel(row.getData());
-    } else {
-      const cat=row.getData(), g=matchCounts(cat.matches), k=matchCounts(cat.knockoutMatches||[]);
-      total=g.total+k.total; done=g.done+k.done; stage=stageLabel(cat);
-    }
-    const p = total ? Math.round(done/total*100) : 0;
-    const sb = stage.startsWith('✅')
-      ? `<span class="badge badge-done">✓ 완료</span>`
-      : stage==='대기중' ? `<span class="badge badge-pending">대기</span>`
-      : `<span class="badge badge-ongoing">● 진행</span>`;
-    return `<tr>
-      <td class="fw7" style="white-space:nowrap">${row.sport}</td>
-      <td style="white-space:nowrap">${row.cat}</td>
-      <td class="sum-hide">${row.teams}</td>
-      <td>${sb}</td>
-      <td style="min-width:90px"><div class="flex ai-c gap1"><div class="prog-bar" style="flex:1"><div class="prog-fill" style="width:${p}%"></div></div><span class="small">${p}%</span></div></td>
-      <td class="small sum-hide">${done}/${total}</td>
-    </tr>`;
-  }).join('');
+  try {
+    document.getElementById('summaryTbody').innerHTML = rows.map(row => {
+      let total=0, done=0, stage='대기중';
+      try {
+        if (row.isLf) {
+          const all=(row.getData().participants||[]);
+          total=all.length*2;
+          done=all.filter(p=>p.round1?.score!=null).length+all.filter(p=>p.round2?.score!=null).length;
+          stage=lfStageLabel(row.getData());
+        } else {
+          const cat=row.getData(), g=matchCounts(cat.matches||[]), k=matchCounts(cat.knockoutMatches||[]);
+          total=g.total+k.total; done=g.done+k.done; stage=stageLabel(cat);
+        }
+      } catch(e) { console.warn('summaryRow error', row.cat, e); }
+      const p = total ? Math.round(done/total*100) : 0;
+      const sb = stage.startsWith('✅')
+        ? `<span class="badge badge-done">✓ 완료</span>`
+        : stage==='대기중' ? `<span class="badge badge-pending">대기</span>`
+        : `<span class="badge badge-ongoing">● 진행</span>`;
+      return `<tr>
+        <td class="fw7" style="white-space:nowrap">${row.sport}</td>
+        <td style="white-space:nowrap">${row.cat}</td>
+        <td class="sum-hide">${row.teams}</td>
+        <td>${sb}</td>
+        <td style="min-width:90px"><div class="flex ai-c gap1"><div class="prog-bar" style="flex:1"><div class="prog-fill" style="width:${p}%"></div></div><span class="small">${p}%</span></div></td>
+        <td class="small sum-hide">${done}/${total}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { console.error('summaryTbody render error', e); }
 
-  const as = getArenaStatus();
-  document.getElementById('arenaGrid').innerHTML = Array.from({length:6},(_,i) => {
-    const a=String(i+1), st=as[a];
-    let cls='', teams='<span class="muted small">대기중</span>', cat='';
-    if (st) { cls=st.ongoing?'active':'done'; teams=`${st.teamA}<br><span class="muted small">vs</span><br>${st.teamB}`; cat=st.cat; }
-    return `<div class="arena-card ${cls}"><div class="arena-num">경기장 ${i+1}</div><div class="arena-teams">${teams}</div>${cat?`<div class="arena-cat">${cat}</div>`:''}</div>`;
-  }).join('');
+  try {
+    const as = getArenaStatus();
+    document.getElementById('arenaGrid').innerHTML = Array.from({length:6},(_,i) => {
+      const a=String(i+1), st=as[a];
+      let cls='', teams='<span class="muted small">대기중</span>', cat='';
+      if (st) { cls=st.ongoing?'active':'done'; teams=`${st.teamA}<br><span class="muted small">vs</span><br>${st.teamB}`; cat=st.cat; }
+      return `<div class="arena-card ${cls}"><div class="arena-num">경기장 ${i+1}</div><div class="arena-teams">${teams}</div>${cat?`<div class="arena-cat">${cat}</div>`:''}</div>`;
+    }).join('');
+  } catch(e) { console.error('arenaGrid render error', e); }
 
-  document.getElementById('lfArenaGrid').innerHTML = [
-    {label:'Junior 경기장', cat:S.lineFollow.junior},
-    {label:'Senior 경기장', cat:S.lineFollow.senior},
-  ].map(({label,cat}) => {
-    const entered=cat.participants.filter(p=>p.round1.score!==null||p.round2.score!==null).length;
-    const total=cat.participants.length;
-    const cls=entered===total?'done':entered>0?'lf':'';
-    return `<div class="arena-card ${cls}"><div class="arena-num">${label}</div><div class="arena-teams small">${entered}/${total} 기록 입력</div></div>`;
-  }).join('');
+  try {
+    document.getElementById('lfArenaGrid').innerHTML = [
+      {label:'Junior 경기장', cat:S.lineFollow?.junior},
+      {label:'Senior 경기장', cat:S.lineFollow?.senior},
+    ].map(({label,cat}) => {
+      const parts=(cat?.participants||[]);
+      const entered=parts.filter(p=>p.round1?.score!=null||p.round2?.score!=null).length;
+      const total=parts.length;
+      const cls=total&&entered===total?'done':entered>0?'lf':'';
+      return `<div class="arena-card ${cls}"><div class="arena-num">${label}</div><div class="arena-teams small">${entered}/${total} 기록 입력</div></div>`;
+    }).join('');
+  } catch(e) { console.error('lfArenaGrid render error', e); }
 
   document.getElementById('updatedAt').textContent = '업데이트: '+new Date().toLocaleTimeString('ko-KR');
 }
@@ -1338,9 +1349,9 @@ function genOthelloKO() {
 /* ── RENDER: LINE FOLLOW ──────────────────────────── */
 function renderLineFollow() {
   const cat = S.lineFollow[lfTab];
-  const ranking = getLfRanking(cat.participants);
-  const f = v => v!==null ? v : '-';
-  const ft = v => v!==null ? v+'초' : '-';
+  const ranking = getLfRanking(cat.participants||[]);
+  const f = v => v!=null ? v : '-';
+  const ft = v => v!=null ? v+'초' : '-';
 
   // Desktop full table
   let tableHtml = `<div class="tbl-wrap lf-table-wrap"><table>
@@ -1547,8 +1558,9 @@ function openLf(catKey, pid) {
   editLf={catKey,pid};
   const p=S.lineFollow[catKey].participants.find(p=>p.id===pid); if(!p)return;
   document.getElementById('lfPName').textContent=p.name;
-  document.getElementById('lf1s').value=p.round1.score??''; document.getElementById('lf1b').value=p.round1.bonus??''; document.getElementById('lf1t').value=p.round1.time??'';
-  document.getElementById('lf2s').value=p.round2.score??''; document.getElementById('lf2b').value=p.round2.bonus??''; document.getElementById('lf2t').value=p.round2.time??'';
+  const r1=p.round1||{}, r2=p.round2||{};
+  document.getElementById('lf1s').value=r1.score??''; document.getElementById('lf1b').value=r1.bonus??''; document.getElementById('lf1t').value=r1.time??'';
+  document.getElementById('lf2s').value=r2.score??''; document.getElementById('lf2b').value=r2.bonus??''; document.getElementById('lf2t').value=r2.time??'';
   document.getElementById('lfOverlay').classList.remove('hidden');
 }
 function saveLf() {
@@ -1642,17 +1654,20 @@ function setLfTab(tab) {
   renderLineFollow();
 }
 
+function safeRender(fn, name) {
+  try { fn(); } catch(e) { console.error('renderError['+name+']', e); }
+}
 function renderCurrent() {
-  if(curView==='dashboard')renderDashboard();
-  else if(curView==='sumo')renderSumo();
-  else if(curView==='linefollow')renderLineFollow();
-  else if(curView==='othello')renderOthello();
+  if(curView==='dashboard') safeRender(renderDashboard,'dashboard');
+  else if(curView==='sumo') safeRender(renderSumo,'sumo');
+  else if(curView==='linefollow') safeRender(renderLineFollow,'linefollow');
+  else if(curView==='othello') safeRender(renderOthello,'othello');
 }
 function renderAll() {
-  renderDashboard();
-  if(curView==='sumo')renderSumo();
-  else if(curView==='linefollow')renderLineFollow();
-  else if(curView==='othello')renderOthello();
+  safeRender(renderDashboard,'dashboard');
+  if(curView==='sumo') safeRender(renderSumo,'sumo');
+  else if(curView==='linefollow') safeRender(renderLineFollow,'linefollow');
+  else if(curView==='othello') safeRender(renderOthello,'othello');
 }
 
 /* ── INIT ─────────────────────────────────────────── */
