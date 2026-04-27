@@ -615,8 +615,8 @@ tbody tr:hover{background:var(--g100)}
     <div class="tab-bar mt2">
       <button class="tab-btn active" onclick="setSumoTab('juniorSpike')">Junior Spike<br><small>48팀</small></button>
       <button class="tab-btn" onclick="setSumoTab('seniorSpike')">Senior Spike<br><small>12팀</small></button>
-      <button class="tab-btn" onclick="setSumoTab('juniorOpen')">Junior Open<br><small>8팀</small></button>
-      <button class="tab-btn" onclick="setSumoTab('seniorOpen')">Senior Open<br><small>6팀</small></button>
+      <button class="tab-btn" onclick="setSumoTab('juniorOpen')">Junior Open<br><small>7팀</small></button>
+      <button class="tab-btn" onclick="setSumoTab('seniorOpen')">Senior Open<br><small>7팀</small></button>
     </div>
     <div id="sumoContent"></div>
   </div>
@@ -712,8 +712,8 @@ function mkDefault() {
     sumo: {
       juniorSpike: mkSumo('JS', 48, 8),
       seniorSpike: mkSumo('SS', 12, 2),
-      juniorOpen:  mkSumo('JO',  8, 2),
-      seniorOpen:  mkSumo('SO',  6, 2),
+      juniorOpen:  mkSumo('JO',  7, 2),
+      seniorOpen:  mkSumo('SO',  7, 2),
     },
     lineFollow: {
       junior: mkLf('LFJ', 4),
@@ -724,7 +724,8 @@ function mkDefault() {
 }
 
 function mkSumo(pfx, total, nGroups) {
-  const perGroup = total / nGroups;
+  // 홀수 팀일 때 교대 배정으로 최대한 균등 분배 (예: 7팀→A:4 B:3)
+  const perGroup = Math.ceil(total / nGroups);
   const teams = [];
   for (let i = 0; i < total; i++) {
     teams.push({ id:`${pfx}${String(i+1).padStart(2,'0')}`, name:`팀 ${i+1}`, group:Math.floor(i/perGroup) });
@@ -916,6 +917,16 @@ function migrateState() {
   save();
 }
 function _migrate() {
+  // ⓪ 팀 수 변경 시 해당 카테고리 자동 재설정 (구조 변경 대응)
+  const expectedTeams = { juniorOpen:7, seniorOpen:7 };
+  Object.entries(expectedTeams).forEach(([key, expected]) => {
+    const cat = S.sumo[key];
+    if (cat && cat.teams.length !== expected) {
+      const pfxMap = { juniorOpen:'JO', seniorOpen:'SO' };
+      S.sumo[key] = mkSumo(pfxMap[key], expected, 2);
+    }
+  });
+
   // ① result 있는데 status pending → done 자동 수정
   const fixStatus = ms => { if(!ms)return; ms.forEach(m=>{ if(m.result&&m.status==='pending')m.status='done'; }); };
   Object.values(S.sumo).forEach(cat => { fixStatus(cat.matches); fixStatus(cat.knockoutMatches); });
@@ -1039,8 +1050,8 @@ function renderDashboard() {
   const rows = [
     {sport:'🥋 SUMO', cat:'Junior Spike', teams:48, getData:()=>S.sumo.juniorSpike},
     {sport:'🥋 SUMO', cat:'Senior Spike', teams:12, getData:()=>S.sumo.seniorSpike},
-    {sport:'🥋 SUMO', cat:'Junior Open',  teams:8,  getData:()=>S.sumo.juniorOpen},
-    {sport:'🥋 SUMO', cat:'Senior Open',  teams:6,  getData:()=>S.sumo.seniorOpen},
+    {sport:'🥋 SUMO', cat:'Junior Open',  teams:7,  getData:()=>S.sumo.juniorOpen},
+    {sport:'🥋 SUMO', cat:'Senior Open',  teams:7,  getData:()=>S.sumo.seniorOpen},
     {sport:'🚗 LINE', cat:'Junior', teams:4, isLf:true, getData:()=>S.lineFollow.junior},
     {sport:'🚗 LINE', cat:'Senior', teams:7, isLf:true, getData:()=>S.lineFollow.senior},
     {sport:'⚫ OTHELLO', cat:'-', teams:11, getData:()=>S.othello},
