@@ -1183,7 +1183,10 @@ function renderSumo() {
   html += `<div class="card mb2">
     <div class="card-hdr">
       <div class="card-title">📋 조별리그 경기 목록</div>
-      <span class="small muted">${S.isAdmin?'클릭 → 결과 입력':'보기 모드'}</span>
+      <div class="flex ai-c gap1">
+        ${S.isAdmin?`<button class="btn btn-ghost btn-sm" onclick="shuffleMatches('sumo','${sumoTab}')">🔀 순서 섞기</button>`:''}
+        <span class="small muted">${S.isAdmin?'클릭 → 결과 입력':'보기 모드'}</span>
+      </div>
     </div>
     <div class="card-body">`;
 
@@ -1490,7 +1493,10 @@ function renderOthello() {
   }
 
   html += `<div class="card mb2">
-    <div class="card-hdr"><div class="card-title">📋 조별리그 경기 목록</div></div>
+    <div class="card-hdr">
+      <div class="card-title">📋 조별리그 경기 목록</div>
+      ${S.isAdmin?`<button class="btn btn-ghost btn-sm" onclick="shuffleMatches('othello','')">🔀 순서 섞기</button>`:''}
+    </div>
     <div class="card-body">`;
   for (let g=0;g<2;g++) {
     const gm=cat.matches.filter(m=>m.group===g), done=gm.filter(m=>m.status==='done').length;
@@ -1506,6 +1512,35 @@ function renderOthello() {
 
   if ((cat.knockoutMatches||[]).length>0) html+=renderKOSection(cat,'',cat.participants,'othello');
   document.getElementById('othelloContent').innerHTML = html;
+}
+
+/* ── 경기 순서 셔플 ───────────────────────────────── */
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function shuffleMatches(section, catKey) {
+  let matches;
+  if (section === 'sumo') matches = S.sumo[catKey].matches;
+  else matches = S.othello.matches;
+
+  // 그룹별로 따로 섞기
+  const groups = [...new Set(matches.map(m => m.group))];
+  const shuffled = [];
+  groups.forEach(g => {
+    const gm = matches.filter(m => m.group === g);
+    shuffleArray(gm);
+    shuffled.push(...gm);
+  });
+  if (section === 'sumo') S.sumo[catKey].matches = shuffled;
+  else S.othello.matches = shuffled;
+
+  save();
+  if (section === 'sumo') renderSumo();
+  else renderOthello();
 }
 
 /* ── MATCH MODAL ──────────────────────────────────── */
