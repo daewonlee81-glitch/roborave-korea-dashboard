@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoboRave Korea 2026 — SUMO 그룹 결과표</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+/* ════ 화면 공통 ════ */
+*{box-sizing:border-box;margin:0;padding:0;
+  -webkit-print-color-adjust:exact!important;
+  print-color-adjust:exact!important}
+html,body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;
+  font-size:11pt;background:#e8ecf0;color:#1a1a1a}
+
+/* ════ 로딩 ════ */
+#ld{position:fixed;inset:0;background:rgba(15,37,72,.93);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;gap:.9rem;z-index:999;font-size:.9rem}
+.spin{width:38px;height:38px;border:3px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:sp .75s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ld-info{opacity:.75;font-size:.78rem;text-align:center}
+
+/* ════ 화면용 버튼 바 ════ */
+#toolbar{position:fixed;bottom:0;left:0;right:0;background:#1a3a6b;
+  color:#fff;display:flex;align-items:center;justify-content:space-between;
+  padding:.5rem 1.2rem;z-index:50;box-shadow:0 -2px 8px rgba(0,0,0,.3);
+  flex-wrap:wrap;gap:.5rem}
+#toolbar span{font-size:.8rem;opacity:.85}
+.tbtn{cursor:pointer;border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.15);color:#fff;
+  padding:.32rem .85rem;border-radius:5px;font-size:.8rem;font-weight:700;
+  font-family:inherit;white-space:nowrap;transition:background .2s}
+.tbtn:hover{background:rgba(255,255,255,.28)}
+.tbtn.primary{background:#06c87e;border-color:#06c87e}
+.tbtn.primary:hover{background:#05b06e}
+
+/* ════ 결과표 페이지 컨테이너 ════ */
+#sheets{padding:1.2rem 1rem 80px}
+
+/* ════ 개별 결과표 시트 ════ */
+.sheet{
+  background:#fff;
+  width:210mm;
+  min-height:270mm;
+  margin:0 auto 1.5rem;
+  padding:8mm 10mm 8mm;
+  box-shadow:0 2px 12px rgba(0,0,0,.18);
+  border-radius:3px;
+  display:flex;
+  flex-direction:column;
+  gap:5mm;
+  page-break-after:always;
+  break-after:page;
+}
+.sheet:last-child{page-break-after:auto;break-after:auto}
+
+/* 시트 헤더 */
+.sh-top{display:flex;align-items:stretch;gap:0;border:2px solid #1a3a6b;border-radius:4px;overflow:hidden}
+.sh-cat{padding:6px 12px;font-size:14pt;font-weight:900;color:#fff;
+  display:flex;align-items:center;justify-content:center;min-width:130px;text-align:center;line-height:1.3}
+.sh-info{flex:1;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.sh-title{font-size:13.5pt;font-weight:900;color:#1a3a6b;line-height:1.2}
+.sh-sub{font-size:8.5pt;color:#555}
+.sh-meta{display:flex;gap:18px;margin-top:4px;flex-wrap:wrap}
+.sh-meta-item{font-size:8.5pt;color:#333;display:flex;align-items:center;gap:4px}
+.meta-box{display:inline-block;min-width:80px;height:16px;border-bottom:1.5px solid #333;vertical-align:bottom}
+.sh-logo{padding:6px 10px;display:flex;align-items:center;justify-content:center;
+  font-size:22pt;background:#f8f9fa;border-left:1px solid #ddd}
+
+/* 경기장 배정 배너 */
+.arena-banner{background:#f0f4ff;border:1px solid #c5d0e8;border-radius:3px;
+  padding:4px 10px;font-size:8.5pt;color:#2a4080;text-align:center;font-weight:700}
+
+/* ── 경기 결과표 ── */
+.match-section{flex:1}
+.section-title{font-size:9.5pt;font-weight:900;color:#1a3a6b;
+  border-bottom:2px solid #1a3a6b;padding-bottom:2px;margin-bottom:4px;letter-spacing:.5px}
+
+table.match-tbl{width:100%;border-collapse:collapse;font-size:9pt}
+table.match-tbl th{background:#1a3a6b;color:#fff;text-align:center;
+  padding:4px 4px;font-size:8pt;font-weight:700;border:1px solid #1a3a6b}
+table.match-tbl td{border:1px solid #bbb;padding:3px 4px;text-align:center;vertical-align:middle}
+table.match-tbl tr:nth-child(even) td{background:#f9f9f9}
+.td-num{width:32px;font-size:8pt;font-weight:700;color:#555}
+.td-team{text-align:left;padding-left:6px;min-width:90px;font-weight:600;font-size:9pt}
+.td-vs{width:22px;font-size:8pt;color:#888;font-style:italic}
+.td-result{width:44px;font-size:9pt}
+.td-note{min-width:60px;font-size:8pt}
+.result-box{display:inline-block;width:36px;height:18px;border:1.5px solid #999;border-radius:3px;vertical-align:middle}
+.win-loss{display:flex;justify-content:center;gap:4px;align-items:center}
+.wl-label{font-size:7pt;color:#888}
+
+/* ── 순위표 ── */
+table.rank-tbl{width:100%;border-collapse:collapse;font-size:9pt}
+table.rank-tbl th{background:#2456a4;color:#fff;text-align:center;
+  padding:4px 4px;font-size:8pt;font-weight:700;border:1px solid #2456a4}
+table.rank-tbl td{border:1px solid #bbb;padding:4px 5px;text-align:center;vertical-align:middle;height:22px}
+table.rank-tbl tr:nth-child(even) td{background:#f5f8ff}
+.td-rank{width:28px;font-weight:800;font-size:9.5pt}
+.td-rteam{text-align:left;padding-left:8px;font-weight:600}
+.td-stat{width:36px}
+.td-rnote{min-width:70px}
+
+/* ── 서명란 ── */
+.sign-row{display:flex;gap:10mm;margin-top:2mm}
+.sign-item{flex:1;border-top:1.5px solid #333;padding-top:3px;
+  font-size:8pt;color:#444;text-align:center}
+
+/* ── 카테고리 색상 ── */
+.cat-js{background:#1b5e20}
+.cat-ss{background:#880e4f}
+.cat-jo{background:#01579b}
+.cat-so{background:#424242}
+
+/* 경기 결과 체크 칸 */
+.chk-cell{display:flex;justify-content:space-around;align-items:center;gap:2px}
+.chk-box{display:flex;flex-direction:column;align-items:center;gap:1px}
+.chk-sq{width:16px;height:16px;border:1.5px solid #888;border-radius:2px;display:inline-block}
+.chk-lbl{font-size:6.5pt;color:#666;line-height:1}
+
+/* ════ 인쇄 전용 ════ */
+@media print{
+  @page{size:A4 portrait;margin:10mm 8mm}
+  html,body{background:#fff!important;margin:0;padding:0;font-size:9.5pt}
+  #toolbar,#ld{display:none!important}
+  #sheets{padding:0!important;background:#fff!important}
+
+  .sheet{
+    width:100%!important;
+    margin:0!important;
+    padding:5mm 6mm!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+    min-height:0!important;
+    gap:4mm!important;
+    page-break-after:always!important;
+    break-after:page!important;
+  }
+  .sheet:last-child{
+    page-break-after:avoid!important;
+    break-after:avoid!important;
+  }
+
+  /* 테이블이 페이지 중간에서 잘리지 않도록 */
+  .match-section{page-break-inside:avoid;break-inside:avoid}
+  table.match-tbl,table.rank-tbl{page-break-inside:auto}
+  table.match-tbl tr,table.rank-tbl tr{page-break-inside:avoid;break-inside:avoid}
+
+  /* 배경색 강제 출력 */
+  .sh-cat,.cat-js,.cat-ss,.cat-jo,.cat-so{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+    color-scheme:light!important;
+  }
+  table.match-tbl th,table.rank-tbl th{
+    background:#1a3a6b!important;color:#fff!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  table.match-tbl tr:nth-child(even) td{background:#f9f9f9!important}
+  table.rank-tbl tr:nth-child(even) td{background:#f5f8ff!important}
+
+  /* 체크박스 칸 선명하게 */
+  .chk-sq{border:1.5px solid #555!important}
+  .sign-row{margin-top:3mm!important}
+}
+</style>
+</head>
+<body>
+
+<div id="ld">
+  <div class="spin"></div>
+  <p>Firebase에서 팀 데이터 불러오는 중…</p>
+  <div class="ld-info" id="ld-info">카테고리별 그룹 결과표를 생성합니다</div>
+</div>
+
+<div id="toolbar">
+  <span id="tb-info">결과표 로딩 중…</span>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+    <button class="tbtn" onclick="window.print()">🖨️ 전체 인쇄</button>
+  </div>
+</div>
+
+<div id="sheets">
+  <!-- 결과표가 여기에 동적으로 생성됩니다 -->
+</div>
+
+<script>
+'use strict';
+
+const GL  = ['A','B','C','D','E','F','G','H'];
+
+const CAT_META = {
+  juniorSpike: { label:'Junior Spike', short:'JS', cls:'cat-js', arena11:'A~F조 → 1~6경기장 (11:00~12:00)', arena13:'G·H조 → 1·2경기장 (13:00~14:00)' },
+  seniorSpike: { label:'Senior Spike', short:'SS', cls:'cat-ss', arena13:'A·B조 → 3·4경기장 (13:00~14:00)' },
+  juniorOpen:  { label:'Junior Open',  short:'JO', cls:'cat-jo', arena13:'A조 → 5경기장 / B조 → 6경기장 (13:00~14:00)' },
+  seniorOpen:  { label:'Senior Open',  short:'SO', cls:'cat-so', arena13:'A조 → 5경기장 / B조 → 6경기장 (13:00~14:00)' },
+};
+
+/* Arena 배정 텍스트 */
+const ARENA_MAP = {
+  juniorSpike: { 0:'1경기장', 1:'2경기장', 2:'3경기장', 3:'4경기장', 4:'5경기장', 5:'6경기장', 6:'1경기장', 7:'2경기장' },
+  seniorSpike: { 0:'3경기장', 1:'4경기장' },
+  juniorOpen:  { 0:'5경기장', 1:'6경기장' },
+  seniorOpen:  { 0:'5경기장', 1:'6경기장' },
+};
+const TIME_MAP = {
+  juniorSpike: { 0:'11:00~12:00', 1:'11:00~12:00', 2:'11:00~12:00', 3:'11:00~12:00', 4:'11:00~12:00', 5:'11:00~12:00', 6:'13:00~14:00', 7:'13:00~14:00' },
+  seniorSpike: { 0:'13:00~14:00', 1:'13:00~14:00' },
+  juniorOpen:  { 0:'13:00~14:00', 1:'13:00~14:00' },
+  seniorOpen:  { 0:'13:00~14:00', 1:'13:00~14:00' },
+};
+
+const FB_CONFIG = {
+  apiKey:            "AIzaSyCSMdkb391bJCIxGcr6JZuiDDzSlJlnBWM",
+  authDomain:        "roborave-korea.firebaseapp.com",
+  databaseURL:       "https://roborave-korea-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "roborave-korea",
+  storageBucket:     "roborave-korea.firebasestorage.app",
+  messagingSenderId: "589408311648",
+  appId:             "1:589408311648:web:a46b75148b19c70476a605",
+};
+
+if(typeof firebase === 'undefined'){
+  document.getElementById('ld').innerHTML =
+    '<p style="color:#f88">⚠️ Firebase SDK 로드 실패<br>인터넷 연결 확인 후 새로고침</p>';
+  throw new Error('Firebase not loaded');
+}
+
+const fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FB_CONFIG);
+const db    = firebase.database(fbApp);
+
+/* ── 유틸 ── */
+function toArr(v){ return !v ? [] : Array.isArray(v) ? v : Object.values(v); }
+
+function buildTeamMap(teams){
+  const m = {};
+  toArr(teams).forEach(t => { if(t && t.id) m[t.id] = t.name || t.id; });
+  return m;
+}
+
+/* ── 그룹 내 팀 목록 ── */
+function teamsInGroup(teams, groupIdx){
+  return toArr(teams).filter(t => (t.group ?? 0) === groupIdx);
+}
+
+/* ── 결과표 한 장 HTML ── */
+function buildSheet(catKey, groupIdx, grpLabel, tmap, allTeams, matches){
+  const meta    = CAT_META[catKey];
+  const arena   = ARENA_MAP[catKey]?.[groupIdx] ?? '경기장 미정';
+  const time    = TIME_MAP[catKey]?.[groupIdx]  ?? '';
+  const teams   = teamsInGroup(allTeams, groupIdx);
+  const grpMatches = matches.filter(m => (m.group ?? 0) === groupIdx);
+
+  /* ── 경기 번호는 그룹 내 순번 ── */
+  let matchRows = '';
+  grpMatches.forEach((m, i) => {
+    const nA = tmap[m.teamA] || m.teamA || '?';
+    const nB = tmap[m.teamB] || m.teamB || '?';
+    matchRows += `
+    <tr>
+      <td class="td-num">${i + 1}</td>
+      <td class="td-team">${nA}</td>
+      <td>
+        <div class="chk-cell">
+          <div class="chk-box"><span class="chk-sq"></span><span class="chk-lbl">승</span></div>
+          <div class="chk-box"><span class="chk-sq"></span><span class="chk-lbl">패</span></div>
+        </div>
+      </td>
+      <td class="td-vs">vs</td>
+      <td>
+        <div class="chk-cell">
+          <div class="chk-box"><span class="chk-sq"></span><span class="chk-lbl">승</span></div>
+          <div class="chk-box"><span class="chk-sq"></span><span class="chk-lbl">패</span></div>
+        </div>
+      </td>
+      <td class="td-team">${nB}</td>
+      <td class="td-note"></td>
+    </tr>`;
+  });
+
+  /* ── 순위표 ── */
+  let rankRows = '';
+  teams.forEach((_, i) => {
+    const tname = tmap[teams[i]?.id] || teams[i]?.name || `팀 ${i+1}`;
+    rankRows += `
+    <tr>
+      <td class="td-rank">${i + 1}</td>
+      <td class="td-rteam">${tname}</td>
+      <td class="td-stat"></td>
+      <td class="td-stat"></td>
+      <td class="td-stat"></td>
+      <td class="td-rnote"></td>
+    </tr>`;
+  });
+
+  return `
+<div class="sheet">
+  <!-- 헤더 -->
+  <div class="sh-top">
+    <div class="sh-cat ${meta.cls}">${meta.label}<br>${grpLabel}조</div>
+    <div class="sh-info">
+      <div class="sh-title">🥋 SUMO 리그전 결과표</div>
+      <div class="sh-sub">RoboRave Korea Open 2026</div>
+      <div class="sh-meta">
+        <div class="sh-meta-item">📅 날짜 <span class="meta-box"></span></div>
+        <div class="sh-meta-item">🏟 경기장 <strong>${arena}</strong></div>
+        <div class="sh-meta-item">⏰ 시간 <strong>${time}</strong></div>
+        <div class="sh-meta-item">👤 심판 <span class="meta-box" style="min-width:90px"></span></div>
+      </div>
+    </div>
+    <div class="sh-logo">🤖</div>
+  </div>
+
+  <!-- 경기 결과 -->
+  <div class="match-section">
+    <div class="section-title">▶ 경기 결과  <span style="font-size:7.5pt;font-weight:400;color:#666">(승/패 해당 칸에 ✓ 표시)</span></div>
+    <table class="match-tbl">
+      <thead>
+        <tr>
+          <th class="td-num">No.</th>
+          <th style="min-width:90px;text-align:left;padding-left:6px">팀 A</th>
+          <th style="width:64px">결과 A</th>
+          <th class="td-vs"></th>
+          <th style="width:64px">결과 B</th>
+          <th style="min-width:90px;text-align:left;padding-left:6px">팀 B</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${matchRows || '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:8px">경기 없음</td></tr>'}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 최종 순위표 -->
+  <div>
+    <div class="section-title">▶ 최종 순위 (리그 종료 후 작성)</div>
+    <table class="rank-tbl">
+      <thead>
+        <tr>
+          <th class="td-rank">순위</th>
+          <th style="text-align:left;padding-left:8px">팀명</th>
+          <th class="td-stat">승</th>
+          <th class="td-stat">패</th>
+          <th class="td-stat">점수</th>
+          <th class="td-rnote">비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rankRows}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 서명란 -->
+  <div class="sign-row">
+    <div class="sign-item">심판 서명</div>
+    <div class="sign-item">운영진 확인</div>
+    <div class="sign-item">기록 담당</div>
+  </div>
+</div>`;
+}
+
+/* ── 전체 렌더 ── */
+function render(sumo){
+  let html       = '';
+  let sheetCount = 0;
+
+  const ORDER = ['juniorSpike','seniorSpike','juniorOpen','seniorOpen'];
+
+  ORDER.forEach(catKey => {
+    const catData = sumo[catKey];
+    if(!catData) return;
+    const tmap    = buildTeamMap(catData.teams);
+    const teams   = toArr(catData.teams);
+    const matches = toArr(catData.matches);
+
+    /* 이 카테고리에 존재하는 그룹 인덱스 목록 */
+    const grpSet = new Set();
+    teams.forEach(t => grpSet.add(t.group ?? 0));
+    matches.forEach(m => grpSet.add(m.group ?? 0));
+    const grpIndices = [...grpSet].sort((a,b)=>a-b);
+
+    grpIndices.forEach(gi => {
+      html += buildSheet(catKey, gi, GL[gi] ?? String(gi), tmap, teams, matches);
+      sheetCount++;
+    });
+  });
+
+  document.getElementById('sheets').innerHTML = html || '<p style="text-align:center;padding:3rem;color:#888">데이터 없음</p>';
+  document.getElementById('tb-info').textContent = `총 ${sheetCount}개 그룹 결과표 · 인쇄 시 각 1장씩 출력됩니다`;
+  document.getElementById('ld').style.display = 'none';
+}
+
+/* ── Firebase ── */
+db.ref('rrk_data/sumo').once('value', snap => {
+  const d = snap.val();
+  if(!d){
+    document.getElementById('ld').style.display = 'none';
+    document.getElementById('sheets').innerHTML =
+      '<p style="text-align:center;padding:3rem;color:red">데이터 없음 · Firebase를 확인해주세요</p>';
+    return;
+  }
+  render(d);
+}, err => {
+  document.getElementById('ld').innerHTML = '<p style="color:#f88">Firebase 오류: ' + err.message + '</p>';
+  console.error(err);
+});
+</script>
+</body>
+</html>

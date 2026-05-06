@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoboRave Korea 2026 — SUMO 경기 일정표</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+:root{
+  --navy:#1a3a6b;--navy2:#2456a4;
+  --bg:#f2f4f7;--g100:#f8f9fa;--g200:#e9ecef;--g300:#dee2e6;--g400:#ced4da;--g500:#adb5bd;--g600:#6c757d;
+  --text:#1e293b;
+  --js-bg:#c8e6c9;--js-hd:#1b5e20;--js-bd:#66bb6a;
+  --ss-bg:#f8bbd0;--ss-hd:#880e4f;--ss-bd:#f48fb1;
+  --jo-bg:#b3e5fc;--jo-hd:#01579b;--jo-bd:#4fc3f7;
+  --so-bg:#e0e0e0;--so-hd:#424242;--so-bd:#9e9e9e;
+  --done-bg:#e8f5e9;
+  --green:#2e7d32;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;background:var(--bg);color:var(--text)}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,#0f2548,var(--navy2));color:#fff;
+  padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between;
+  gap:.75rem;flex-wrap:wrap;box-shadow:0 3px 10px rgba(0,0,0,.25);
+  position:sticky;top:0;z-index:50}
+.hdr-l{display:flex;align-items:center;gap:.6rem}
+.hdr-title{font-size:.93rem;font-weight:800}
+.hdr-sub{font-size:.63rem;opacity:.75;margin-top:.06rem;display:flex;align-items:center;gap:.3rem;flex-wrap:wrap}
+.cb{font-size:.59rem;font-weight:800;padding:.07rem .28rem;border-radius:3px;display:inline-block}
+.hdr-r{display:flex;align-items:center;gap:.45rem}
+.badge{padding:.2rem .52rem;border-radius:20px;font-size:.66rem;font-weight:800;white-space:nowrap}
+.b-on{background:#06c87e;color:#fff}
+.b-off{background:var(--g500);color:#fff}
+.b-ld{background:#f4c430;color:#333}
+.btn{cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);
+  color:#fff;padding:.28rem .68rem;border-radius:5px;font-size:.74rem;font-weight:600;
+  font-family:inherit;white-space:nowrap;transition:background .2s}
+.btn:hover{background:rgba(255,255,255,.26)}
+
+/* ── SUMMARY BAR ── */
+.sumbar{background:#fff;border-bottom:1px solid var(--g200);
+  padding:.4rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.si{font-size:.74rem;color:var(--g600)}.si strong{color:var(--text)}
+.prog-wrap{flex:1;min-width:120px;display:flex;align-items:center;gap:.5rem}
+.prog{height:6px;background:var(--g200);border-radius:3px;flex:1;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);border-radius:3px;transition:width .5s}
+.uat{margin-left:auto;font-size:.64rem;color:var(--g500)}
+
+/* ── MAIN TABLE WRAPPER ── */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:.75rem 1rem}
+table{border-collapse:collapse;width:100%;min-width:900px}
+
+/* ── TIME COLUMN ── */
+.t-time{background:var(--navy);color:#fff;text-align:center;vertical-align:middle;
+  padding:.5rem .35rem;font-size:.72rem;font-weight:800;white-space:nowrap;
+  min-width:68px;border:1px solid rgba(255,255,255,.18)}
+
+/* ── ARENA HEADERS ── */
+thead th{background:var(--navy2);color:#fff;text-align:center;
+  padding:.42rem .35rem;font-size:.72rem;font-weight:800;
+  border:1px solid rgba(255,255,255,.18);position:sticky;top:52px;z-index:10}
+thead th.t-time{background:var(--navy);position:sticky;top:52px;z-index:11}
+
+/* ── INFO ROWS (연습, 점심, 휴식) ── */
+.info-cell{vertical-align:middle;text-align:center;padding:.5rem .5rem;
+  font-size:.78rem;font-weight:700;border:1px solid var(--g300)}
+.info-prep{background:#f0f4ff;color:#3a4a7a}
+.info-lunch{background:#d1ecf1;color:#0c5460}
+.info-break{background:#fff3cd;color:#856404}
+
+/* ── GROUP CELLS ── */
+.grp-cell{border:1px solid var(--g300);vertical-align:top;padding:0;min-width:118px}
+.grp-cell.all-done{background:var(--done-bg)}
+.grp-hdr{padding:.25rem .38rem;font-size:.64rem;font-weight:800;
+  display:flex;align-items:center;justify-content:space-between;gap:.2rem;
+  border-bottom:1px solid rgba(0,0,0,.09)}
+.grp-hdr-js{background:var(--js-bg);color:var(--js-hd)}
+.grp-hdr-ss{background:var(--ss-bg);color:var(--ss-hd)}
+.grp-hdr-jo{background:var(--jo-bg);color:var(--jo-hd)}
+.grp-hdr-so{background:var(--so-bg);color:var(--so-hd)}
+.grp-cnt{font-size:.58rem;opacity:.8;font-weight:700;white-space:nowrap}
+.grp-body{max-height:240px;overflow-y:auto;padding:.18rem .28rem;
+  display:flex;flex-direction:column;gap:.08rem}
+
+/* ── MATCH ROWS ── */
+.mr{display:flex;align-items:center;gap:.25rem;padding:.15rem .22rem;
+  border-radius:3px;background:#fff;border:1px solid var(--g200);transition:background .3s}
+.mr.done{background:#e8f5e9;border-color:#a5d6a7}
+.mr-st{font-size:.63rem;flex-shrink:0;width:11px;text-align:center;color:var(--g400)}
+.mr.done .mr-st{color:var(--green)}
+.mr-teams{font-size:.67rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4}
+.mr-vs{color:var(--g500);margin:0 .12rem;font-weight:400;font-size:.6rem}
+
+/* ── COMBO CELL (두 카테고리 공유) ── */
+.combo-cell{border:1px solid var(--g300);vertical-align:top;padding:0;min-width:118px}
+.combo-sec{border-bottom:1px solid var(--g300)}
+.combo-sec:last-child{border-bottom:none}
+
+/* ── NOTE ROW ── */
+.note-row td{font-size:.63rem;color:var(--g600);padding:.22rem .6rem;
+  background:var(--g100);border:1px solid var(--g200);font-style:italic;text-align:center}
+
+/* ── ELIMINATION CELLS ── */
+.elim-cell{border:1px solid var(--g300);vertical-align:middle;text-align:center;
+  padding:.55rem .35rem;min-width:90px}
+.elim-title{font-size:.72rem;font-weight:800;display:block;line-height:1.35}
+.elim-note{font-size:.59rem;opacity:.72;margin-top:.12rem;display:block}
+.elim-js{background:var(--js-bg);color:var(--js-hd)}
+.elim-ss{background:var(--ss-bg);color:var(--ss-hd)}
+.elim-jo{background:var(--jo-bg);color:var(--jo-hd)}
+.elim-so{background:var(--so-bg);color:var(--so-hd)}
+.elim-empty{background:var(--g100);color:var(--g400)}
+
+/* ── MULTI-ELIM CELL (스택) ── */
+.multi-cell{border:1px solid var(--g300);vertical-align:top;padding:0;min-width:90px}
+.me-item{padding:.35rem .35rem;border-bottom:1px solid rgba(0,0,0,.07);text-align:center}
+.me-item:last-child{border-bottom:none}
+.me-label{font-size:.67rem;font-weight:800;display:block}
+
+/* ── LOADING ── */
+#ld{position:fixed;inset:0;background:rgba(15,37,72,.95);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;gap:.8rem;z-index:999}
+.spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:sp .75s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#ld p{font-size:.85rem;opacity:.8}
+
+/* ── FOOTER ── */
+.foot{padding:.38rem 1rem;font-size:.64rem;color:var(--g600);
+  text-align:right;border-top:1px solid var(--g200);background:#fff}
+
+/* ── PRINT ── */
+@media print{
+  .hdr .hdr-r,.sumbar .uat{display:none!important}
+  .hdr{position:static;padding:.3rem .7rem}
+  .sumbar{padding:.3rem .7rem}
+  thead th{position:static!important}
+  body{background:#fff}
+  .tbl-wrap{padding:.3rem}
+  table{min-width:100%!important;font-size:.59rem}
+  .grp-body{max-height:none!important;overflow:visible!important}
+}
+@media(max-width:640px){
+  .hdr-title{font-size:.82rem}
+  .tbl-wrap{padding:.4rem}
+}
+</style>
+</head>
+<body>
+<div id="ld"><div class="spin"></div><p>Firebase에서 경기 데이터 불러오는 중…</p></div>
+
+<!-- ════ HEADER ════ -->
+<header class="hdr">
+  <div class="hdr-l">
+    <span style="font-size:1.55rem;line-height:1">🥋</span>
+    <div>
+      <div class="hdr-title">RoboRave Korea Open 2026 — SUMO 경기 일정표</div>
+      <div class="hdr-sub">
+        <span class="cb" style="background:var(--js-bg);color:var(--js-hd)">Junior Spike</span>
+        <span class="cb" style="background:var(--jo-bg);color:var(--jo-hd)">Junior Open</span>
+        <span class="cb" style="background:var(--ss-bg);color:var(--ss-hd)">Senior Spike</span>
+        <span class="cb" style="background:var(--so-bg);color:var(--so-hd)">Senior Open</span>
+        <span style="opacity:.72">· Firebase 실시간 · 6경기장</span>
+      </div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <span class="badge b-ld" id="sb">● 연결 중</span>
+    <button class="btn" onclick="window.print()">🖨️ 인쇄</button>
+  </div>
+</header>
+
+<!-- ════ SUMMARY BAR ════ -->
+<div class="sumbar">
+  <div class="si">총 리그 경기 <strong id="s-total">—</strong></div>
+  <div class="si">완료 <strong id="s-done" style="color:var(--green)">—</strong></div>
+  <div class="si">남은 경기 <strong id="s-rem">—</strong></div>
+  <div class="prog-wrap">
+    <div class="prog"><div class="prog-fill" id="s-prog" style="width:0%"></div></div>
+    <span style="font-size:.72rem;color:var(--g600)" id="s-pct">0%</span>
+  </div>
+  <div class="uat" id="uat"></div>
+</div>
+
+<!-- ════ SCHEDULE TABLE ════ -->
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th class="t-time">시간</th>
+        <th>🏟 1경기장</th>
+        <th>🏟 2경기장</th>
+        <th>🏟 3경기장</th>
+        <th>🏟 4경기장</th>
+        <th>🏟 5경기장</th>
+        <th>🏟 6경기장</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--g500)">로딩 중…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="foot" id="foot">Firebase 실시간 연동 · 경기 완료 시 초록색으로 자동 업데이트 · 대시보드에서 셔플한 순서가 반영됩니다</div>
+
+<!-- ════ SCRIPT ════ -->
+<script>
+'use strict';
+
+const GL = ['A','B','C','D','E','F','G','H'];
+
+const FB_CONFIG = {
+  apiKey:            "AIzaSyCSMdkb391bJCIxGcr6JZuiDDzSlJlnBWM",
+  authDomain:        "roborave-korea.firebaseapp.com",
+  databaseURL:       "https://roborave-korea-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "roborave-korea",
+  storageBucket:     "roborave-korea.firebasestorage.app",
+  messagingSenderId: "589408311648",
+  appId:             "1:589408311648:web:a46b75148b19c70476a605",
+};
+
+/* Firebase SDK 로드 확인 */
+if(typeof firebase === 'undefined'){
+  document.getElementById('ld').style.display = 'none';
+  document.getElementById('tbody').innerHTML =
+    '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:#c00">' +
+    '⚠️ Firebase SDK 로드 실패<br><span style="font-size:.8rem;color:#666">인터넷 연결을 확인하고 페이지를 새로고침해주세요</span></td></tr>';
+  throw new Error('Firebase SDK not loaded');
+}
+
+/* 중복 앱 초기화 방지 */
+const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FB_CONFIG);
+const db = firebase.database(app);
+
+/* ── 유틸 ── */
+function setSyncBadge(s){
+  const el = document.getElementById('sb');
+  if(s==='online') { el.className='badge b-on';  el.textContent='● 온라인';  }
+  if(s==='offline'){ el.className='badge b-off'; el.textContent='● 오프라인'; }
+  if(s==='error')  { el.className='badge b-off'; el.textContent='● 오류';    }
+}
+
+function toArr(v){
+  if(!v) return [];
+  return Array.isArray(v) ? v : Object.values(v);
+}
+
+function isDone(m){ return m.status==='completed' || m.status==='done'; }
+
+/* ── 팀 이름 맵 ── */
+function buildTeamMap(teams){
+  const m = {};
+  toArr(teams).forEach(t => { if(t&&t.id) m[t.id] = t.name || t.id; });
+  return m;
+}
+
+/* ── 그룹별 경기 데이터 빌드 ──
+   Firebase 저장 순서 그대로 → 대시보드 셔플이 반영됨 */
+function buildGroupData(catData){
+  if(!catData) return {};
+  const tmap = buildTeamMap(catData.teams);
+  const groups = {};
+  toArr(catData.matches).forEach(m => {
+    const g = m.group ?? 0;
+    if(!groups[g]) groups[g] = { label: GL[g] ?? String(g), matches: [] };
+    groups[g].matches.push({
+      id:    m.id,
+      nameA: tmap[m.teamA] || m.teamA || '?',
+      nameB: tmap[m.teamB] || m.teamB || '?',
+      status: m.status || 'pending',
+    });
+  });
+  return groups;
+}
+
+/* ── 그룹 셀 내부 HTML (td 태그 없음) ── */
+function grpInner(grpData, hdrCls, label, grpLabel){
+  if(!grpData){
+    return `<div class="grp-hdr ${hdrCls}">
+              <span>${label} ${grpLabel}조</span>
+              <span class="grp-cnt">0/0</span>
+            </div>
+            <div class="grp-body" style="padding:.25rem;color:var(--g400);font-size:.63rem">경기 없음</div>`;
+  }
+  const matches = grpData.matches;
+  const done = matches.filter(isDone).length;
+  const total = matches.length;
+  const rows = matches.map(m => {
+    const d = isDone(m);
+    return `<div class="mr${d?' done':''}">
+      <span class="mr-st">${d?'✓':'○'}</span>
+      <span class="mr-teams">${m.nameA}<span class="mr-vs">vs</span>${m.nameB}</span>
+    </div>`;
+  }).join('');
+  return `<div class="grp-hdr ${hdrCls}">
+            <span>${label} ${grpLabel}조</span>
+            <span class="grp-cnt">${done}/${total}</span>
+          </div>
+          <div class="grp-body">${rows || '<span style="color:var(--g400);font-size:.63rem;padding:.2rem">경기 없음</span>'}</div>`;
+}
+
+/* ── 그룹 셀 <td> ── */
+function grpCell(grpData, hdrCls, label, grpLabel){
+  const done  = grpData ? grpData.matches.filter(isDone).length : 0;
+  const total = grpData ? grpData.matches.length : 0;
+  const allDone = total > 0 && done === total;
+  return `<td class="grp-cell${allDone?' all-done':''}">${grpInner(grpData, hdrCls, label, grpLabel)}</td>`;
+}
+
+/* ── 콤보 셀 (두 카테고리 공유 경기장) ── */
+function comboCell(gdA, hcA, lbA, glA, gdB, hcB, lbB, glB){
+  return `<td class="combo-cell">
+    <div class="combo-sec">${grpInner(gdA, hcA, lbA, glA)}</div>
+    <div class="combo-sec">${grpInner(gdB, hcB, lbB, glB)}</div>
+  </td>`;
+}
+
+/* ── 안내 행 ── */
+function infoRow(time, icon, label, cls){
+  return `<tr>
+    <td class="t-time">${time}</td>
+    <td colspan="6" class="info-cell ${cls}">${icon} ${label}</td>
+  </tr>`;
+}
+
+/* ── 토너먼트 셀 ── */
+function elimCell(cls, title){
+  return `<td class="elim-cell ${cls}"><span class="elim-title">${title}</span></td>`;
+}
+function emptyCell(){
+  return `<td class="elim-cell elim-empty" style="font-size:1rem;color:var(--g300)">—</td>`;
+}
+
+/* ═══════════════════════════════════════════
+   메인 렌더 함수
+   ═══════════════════════════════════════════ */
+function render(sumo){
+  /* 카테고리별 그룹 데이터 */
+  const JS = buildGroupData(sumo.juniorSpike);
+  const SS = buildGroupData(sumo.seniorSpike);
+  const JO = buildGroupData(sumo.juniorOpen);
+  const SO = buildGroupData(sumo.seniorOpen);
+
+  /* 통계 */
+  let total = 0, done = 0;
+  [sumo.juniorSpike, sumo.seniorSpike, sumo.juniorOpen, sumo.seniorOpen].forEach(cat => {
+    toArr(cat?.matches).forEach(m => { total++; if(isDone(m)) done++; });
+  });
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-done').textContent  = done;
+  document.getElementById('s-rem').textContent   = total - done;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('s-prog').style.width  = pct + '%';
+  document.getElementById('s-pct').textContent   = pct + '%';
+  document.getElementById('uat').textContent = '업데이트: ' + new Date().toLocaleTimeString('ko-KR');
+
+  /* 테이블 HTML 빌드 */
+  let h = '';
+
+  /* ─── 10:00 ~ 11:00 : 연습 / 센서 셋업 ─── */
+  h += infoRow('10:00<br>~11:00', '🔧', '연습 / 센서 셋업', 'info-prep');
+
+  /* ─── 11:00 ~ 12:00 : JS 그룹 A–F ─── */
+  h += `<tr>
+    <td class="t-time">11:00<br>~12:00</td>
+    ${grpCell(JS[0], 'grp-hdr-js', 'Junior Spike', 'A')}
+    ${grpCell(JS[1], 'grp-hdr-js', 'Junior Spike', 'B')}
+    ${grpCell(JS[2], 'grp-hdr-js', 'Junior Spike', 'C')}
+    ${grpCell(JS[3], 'grp-hdr-js', 'Junior Spike', 'D')}
+    ${grpCell(JS[4], 'grp-hdr-js', 'Junior Spike', 'E')}
+    ${grpCell(JS[5], 'grp-hdr-js', 'Junior Spike', 'F')}
+  </tr>`;
+
+  /* ─── 12:00 ~ 13:00 : 점심 식사 ─── */
+  h += infoRow('12:00<br>~13:00', '🍽', '점심 식사', 'info-lunch');
+
+  /* ─── 13:00 ~ 14:00 : JS G·H / SS A·B / (JO+SO) A·B ─── */
+  h += `<tr>
+    <td class="t-time">13:00<br>~14:00</td>
+    ${grpCell(JS[6], 'grp-hdr-js', 'Junior Spike', 'G')}
+    ${grpCell(JS[7], 'grp-hdr-js', 'Junior Spike', 'H')}
+    ${grpCell(SS[0], 'grp-hdr-ss', 'Senior Spike', 'A')}
+    ${grpCell(SS[1], 'grp-hdr-ss', 'Senior Spike', 'B')}
+    ${comboCell(JO[0], 'grp-hdr-jo', 'Junior Open', 'A', SO[0], 'grp-hdr-so', 'Senior Open', 'A')}
+    ${comboCell(JO[1], 'grp-hdr-jo', 'Junior Open', 'B', SO[1], 'grp-hdr-so', 'Senior Open', 'B')}
+  </tr>`;
+
+  /* 유동 관리 안내 */
+  h += `<tr class="note-row">
+    <td></td>
+    <td colspan="6">※ 3 ~ 6 경기장은 상황에 따라 유동적으로 관리됩니다</td>
+  </tr>`;
+
+  /* ─── 14:00 ~ 14:10 : 전체 휴식 ─── */
+  h += infoRow('14:00<br>~14:10', '☕', '전체 휴식', 'info-break');
+
+  /* ─── 14:10 ~ 14:30 : JS 16강 / SS·JO·SO 4강 ─── */
+  h += `<tr>
+    <td class="t-time">14:10<br>~14:30</td>
+    ${elimCell('elim-js', 'Junior Spike<br>16강')}
+    ${elimCell('elim-js', 'Junior Spike<br>16강')}
+    ${elimCell('elim-js', 'Junior Spike<br>16강')}
+    ${elimCell('elim-js', 'Junior Spike<br>16강')}
+    <td class="multi-cell">
+      <div class="me-item elim-ss"><span class="me-label">Senior Spike 4강</span></div>
+      <div class="me-item elim-jo"><span class="me-label">Junior Open 4강</span></div>
+      <div class="me-item elim-so"><span class="me-label">Senior Open 4강</span></div>
+    </td>
+    <td class="multi-cell">
+      <div class="me-item elim-ss"><span class="me-label">Senior Spike 4강</span></div>
+      <div class="me-item elim-jo"><span class="me-label">Junior Open 4강</span></div>
+      <div class="me-item elim-so"><span class="me-label">Senior Open 4강</span></div>
+    </td>
+  </tr>`;
+
+  /* ─── 14:30 ~ 14:45 : 3·4위전 ─── */
+  h += `<tr>
+    <td class="t-time">14:30<br>~14:45</td>
+    ${elimCell('elim-js', 'Junior Spike<br>3·4위전')}
+    ${elimCell('elim-ss', 'Senior Spike<br>3·4위전')}
+    ${emptyCell()}
+    ${elimCell('elim-jo', 'Junior Open<br>3·4위전')}
+    ${elimCell('elim-so', 'Senior Open<br>3·4위전')}
+    ${emptyCell()}
+  </tr>`;
+
+  /* ─── 14:45 ~ 15:00 : 결승 ─── */
+  h += `<tr>
+    <td class="t-time">14:45<br>~15:00</td>
+    ${elimCell('elim-js', 'Junior Spike<br>결승 🏆')}
+    ${elimCell('elim-ss', 'Senior Spike<br>결승 🏆')}
+    ${emptyCell()}
+    ${elimCell('elim-jo', 'Junior Open<br>결승 🏆')}
+    ${elimCell('elim-so', 'Senior Open<br>결승 🏆')}
+    ${emptyCell()}
+  </tr>`;
+
+  document.getElementById('tbody').innerHTML = h;
+  document.getElementById('ld').style.display = 'none';
+  setSyncBadge('online');
+}
+
+/* ── Firebase 연동 ── */
+db.ref('rrk_data/sumo').on('value', snap => {
+  const d = snap.val();
+  if(!d){
+    document.getElementById('ld').style.display = 'none';
+    document.getElementById('tbody').innerHTML =
+      '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#c00">데이터 없음 · Firebase 연결을 확인해주세요</td></tr>';
+    setSyncBadge('error');
+    return;
+  }
+  render(d);
+}, err => {
+  document.getElementById('ld').style.display = 'none';
+  setSyncBadge('error');
+  console.error('Firebase error', err);
+});
+
+db.ref('.info/connected').on('value', s => {
+  if(!s.val()) setSyncBadge('offline');
+});
+</script>
+</body>
+</html>
